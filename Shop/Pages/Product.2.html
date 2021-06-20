@@ -7,17 +7,17 @@
     <meta name="description" content="Porfolio for Fabi - Motion designer">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="icon" type="image/svg" href="assets/img/root/favicon.png">
-    <link rel="stylesheet" href="assets/css/framework/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/framework/bootstrap.custom.css">
-    <link rel="stylesheet" href="assets/fonts/Gilroy/style.css">
-    <link rel="stylesheet" href="assets/fonts/LineIcons/Pro-Regular/font-css/LineIcons.css">
-    <link rel="stylesheet" href="assets/css/vlt-plugins.min.css">
-    <link rel="stylesheet" href="assets/css/vlt-main.min.css">
-    <link rel="stylesheet" href="assets/css/custom.css">
-    <link rel="stylesheet" href="assets/Fontawesome/css/all.css">
+    <link rel="icon" type="image/svg" href="/assets/img/root/favicon.png">
+    <link rel="stylesheet" href="/assets/css/framework/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/framework/bootstrap.custom.css">
+    <link rel="stylesheet" href="/assets/fonts/Gilroy/style.css">
+    <link rel="stylesheet" href="/assets/fonts/LineIcons/Pro-Regular/font-css/LineIcons.css">
+    <link rel="stylesheet" href="/assets/css/vlt-plugins.min.css">
+    <link rel="stylesheet" href="/assets/css/vlt-main.min.css">
+    <link rel="stylesheet" href="/assets/css/custom.css">
+    <link rel="stylesheet" href="/assets/Fontawesome/css/all.css">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="assets/css/plugins/swiper-custom.css">
+    <link rel="stylesheet" href="/assets/css/plugins/swiper-custom.css">
     <!-- To enable custom cursor, through external library uncomment this CDN and enable in index.js -->
     <!-- <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -132,14 +132,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <!-- <img src="/assets/img/shop/Rectangle-1920x1080-Placeholder.png" alt="placeholder"> -->
+                                    <!-- <video class="img-shop" controls src="/assets/img/shop/videos/Desktop 2021.06.08 - 22.02.56.02.DVR.mp4"></video> -->
                                     <div class="swiper-container mySwiper">
                                         <div class="swiper-wrapper">
                                             <div class="swiper-slide"><img
                                                     src="/shop/img/Rectangle-1920x1080-Placeholder.png"
                                                     alt="placeholder"></div>
-                                            <div class="swiper-slide"><video class="img-shop" controls
-                                                    src="/assets/img/shop/videos/Desktop 2021.06.08 - 22.02.56.02.DVR.mp4"></video>
-                                            </div>
+                                            <div class="swiper-slide">Slide 2</div>
                                             <div class="swiper-slide">Slide 3</div>
                                             <div class="swiper-slide">Slide 4</div>
                                             <div class="swiper-slide">Slide 5</div>
@@ -148,7 +147,8 @@
                                             <div class="swiper-slide">Slide 8</div>
                                             <div class="swiper-slide">Slide 9</div>
                                         </div>
-                                        <div class="swiper-pagination"></div>
+                                        <div class="swiper-button-next"></div>
+                                        <div class="swiper-button-prev"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -257,10 +257,11 @@
 
     <script>
         var swiper = new Swiper(".mySwiper", {
-            pagination: {
-                el: ".swiper-pagination",
-            },
-        });
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+            });
     </script>
 </body>
 
