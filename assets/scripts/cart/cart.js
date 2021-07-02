@@ -279,7 +279,7 @@ export class CartElement extends Element {
 								<h6>$${total}</h6>
 								<br>
 								<p>Total Price Adjustments: </p>
-								<h6>${totalAdjustments > 0 ? '' : '-'}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
+								<h6>${totalAdjustments < 0 ? '-' : ''}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
 							</div>
 							<div style='height: 48px'></div>
 							<div class='${classes.paypal}'></div>
@@ -525,7 +525,7 @@ export class CartItemElement extends Element {
 				<img class='thumbnail' src='${item.thumbnailSrc}'>
 				<h6 class='name'>${item.name}</h6>
 				${item.variant && html`<p class='variant'><b>${item.variant}</b></p>`}
-				<p class='price'>$${item.priceTotalUnadjusted}${item.discountPercent ? ` (${item.priceTotalAdjustment > 0 ? '' : '-'}$${Math.abs(item.priceTotalAdjustment.toFixed(2))})` : ''}</p>
+				<p class='price'>$${item.priceTotalUnadjusted}${item.priceTotalAdjustment ? ` (${item.priceTotalAdjustment > 0 ? '' : '-'}$${Math.abs(item.priceTotalAdjustment.toFixed(2))})` : ''}</p>
 				<div class='quantity'>
 					<a @click=${() => this.onDecrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>
 					<p>${item.quantity}</p>
