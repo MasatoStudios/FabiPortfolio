@@ -321,10 +321,12 @@ export class CartElement extends Element {
 						<div class='wrapper'>
 							<div class='data'>
 								<p>Total: </p>
-								<h6>$${total}</h6>
-								<br>
-								<p>Total Price Adjustments: </p>
-								<h6>${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
+								<h6>$${totalUnadjusted}${!!totalAdjustments && ` (${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))})`}</h6>
+								${!!totalAdjustments && html`
+									<br>
+									<p>Adjusted Total: </p>
+									<h6>$${total}</h6>
+								`}
 							</div>
 							<div style='height: 48px'></div>
 							${!isReceipt && html`<div class='${classes.paypal}'></div>`}
