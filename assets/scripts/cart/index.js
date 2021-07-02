@@ -57,6 +57,7 @@ export class Element {
 	}
 
 	onMount() {}
+	onDestroy() {}
 
 	render() {
 		litRender(
@@ -68,6 +69,15 @@ export class Element {
 			this.isMounted = true;
 			this.onMount();
 		}
+	}
+
+	destroy() {
+		litRender(
+			null,
+			this.renderTarget,
+		);
+
+		this.onDestroy();
 	}
 
 	get template() {
