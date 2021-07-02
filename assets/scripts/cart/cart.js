@@ -4,8 +4,7 @@ import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
 import { Element } from './core/element.js';
 import { Vars, MediaQueries } from './core/style.js';
-import { ToastItem } from './toast.js';
-import { toast } from './index.js';
+import { toast, ToastItem } from './toast.js';
 
 export class CartItem extends Item {
 	constructor() {
@@ -63,7 +62,60 @@ export class CartElement extends Element {
 			});
 
 			this.render();
+
+			toast.store.push(ToastItem.from({
+				text: 'Added to cart.',
+				type: 'success',
+			}));
 		});
+
+		this.itemsW.push(...[
+			CartItem.from({
+				id: '1:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 1',
+				quantity: 1,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
+			CartItem.from({
+				id: '2:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 2',
+				quantity: 1,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
+			CartItem.from({
+				id: '3:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 3',
+				quantity: 1,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
+			CartItem.from({
+				id: '4:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 4',
+				quantity: 1,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
+			CartItem.from({
+				id: '4:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 4',
+				quantity: 4,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
+		]);
 	}
 
 	activate() {
@@ -543,3 +595,12 @@ export class CartItemElement extends Element {
 		};
 	}
 }
+
+/** @type {CartElement}		*/	const cart = new CartElement();
+
+cart.render();
+cart.attach(document.body);
+
+export {
+	cart,
+};

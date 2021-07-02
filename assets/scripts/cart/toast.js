@@ -54,7 +54,7 @@ export class ToastElement extends Element {
 				this.toastItemElements.push(toastItemElement);
 			});
 
-			lastItems = items;
+			lastItems = [...items];
 
 			this.render();
 		});
@@ -234,3 +234,12 @@ export class ToastItemElement extends Element {
 		};
 	}
 }
+
+/** @type {ToastElement}	*/	const toast = new ToastElement();
+
+toast.render();
+toast.attach(document.body);
+
+export {
+	toast,
+};
