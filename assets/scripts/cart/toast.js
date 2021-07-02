@@ -1,8 +1,8 @@
 import { html } from 'https://unpkg.com/lit-html@1.4.1/lit-html.js';
-import { Item } from './core/blocks/item';
-import { Element } from './core/element';
-import { StoreArray } from './core/store/extended/array';
-import { Breakpoints, Vars } from './core/style';
+import { Item } from './core/blocks/item.js';
+import { Element } from './core/element.js';
+import { StoreArray } from './core/store/extended/array.js';
+import { Breakpoints, Vars } from './core/style.js';
 
 export class ToastItem extends Item {
 	constructor() {
