@@ -94,49 +94,54 @@ export class CartElement extends Element {
 
 		this.itemsW.push(...[
 			CartItem.from({
-				id: '1:A',
+				id: 'product1',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 1',
 				quantity: 1,
 				pricePerItem: 10,
 				discountPercent: 10,
 				variant: null,
+				type: 'downloadable',
 			}),
 			CartItem.from({
-				id: '2:A',
+				id: 'product2:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 2',
 				quantity: 1,
 				pricePerItem: 10,
 				discountPercent: 0,
 				variant: 'A',
+				type: 'downloadable',
 			}),
 			CartItem.from({
-				id: '3:A',
+				id: 'product3:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 3',
 				quantity: 1,
 				pricePerItem: 10,
 				discountPercent: 0,
 				variant: 'A',
+				type: 'downloadable',
 			}),
 			CartItem.from({
-				id: '4:A',
+				id: 'product4:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 4',
 				quantity: 1,
 				pricePerItem: 10,
 				discountPercent: 0,
 				variant: 'A',
+				type: 'downloadable',
 			}),
 			CartItem.from({
-				id: '4:A',
+				id: 'product4:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 4',
 				quantity: 4,
 				pricePerItem: 10,
 				discountPercent: 0,
 				variant: 'A',
+				type: 'downloadable',
 			}),
 		]);
 	}
@@ -182,11 +187,11 @@ export class CartElement extends Element {
 				const a = document.createElement('a');
 				a.setAttribute('href', uri);
 				a.setAttribute('download', uri);
-				a.setAttribute();
 				a.click();
 			}
 		});
 
+		this.state = 'receipt';
 		this.render();
 
 		this.itemsW.value.splice(0, this.itemsW.length);
