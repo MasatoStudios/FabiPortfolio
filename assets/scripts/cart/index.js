@@ -1,9 +1,8 @@
-import { html, render as litRender } from 'https://unpkg.com/lit-html@1.4.1/lit-html.js';
-import jss from 'https://unpkg.com/jss@10.7.1/dist/jss.bundle.js';
-import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/jss-preset-default.bundle.js';
+import { html } from 'https://unpkg.com/lit-html@1.4.1/lit-html.js';
 import { Item } from './core/blocks/item.js';
 import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
+import { Element } from './core/element.js';
 
 export const StyleVars = {
 	EASE_SLOW_SLOW: 'cubic-bezier(0.77, 0, 0.175, 1)',
@@ -39,53 +38,6 @@ export class CartItem extends Item {
 		this.pricePerItem = undefined;
 		/** @type {number=0} */
 		this.discountPercent = 0;
-	}
-}
-
-export class Element {
-	/** @param {Element} renderTarget */
-	constructor(renderTarget) {
-		/** @type {Element} */ 	this.renderTarget = renderTarget;
-		/** @type {boolean} */ 	this.isMounted = false;
-
-		const { classes } = jss
-			.setup(jssPresetDefault())
-			.createStyleSheet(this.stylesheet)
-			.attach();
-
-		this.classes = classes;
-	}
-
-	onMount() {}
-	onDestroy() {}
-
-	render() {
-		litRender(
-			this.template,
-			this.renderTarget,
-		);
-
-		if (!this.isMounted) {
-			this.isMounted = true;
-			this.onMount();
-		}
-	}
-
-	destroy() {
-		litRender(
-			null,
-			this.renderTarget,
-		);
-
-		this.onDestroy();
-	}
-
-	get template() {
-		return html``;
-	}
-
-	get stylesheet() {
-		return {};
 	}
 }
 
