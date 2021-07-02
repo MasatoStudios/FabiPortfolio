@@ -175,22 +175,22 @@ export class CartElement extends Element {
 					};
 
 					Object.keys(new CartItem()).forEach((key) => {
-						const data = elem.dataset[`cartAdd${key[0].toUpperCase() + key.slice(1)}`];
+						let isExpression = false;
+						const datasetKey = `cartAdd${key[0].toUpperCase() + key.substr(1)}`;
+
+						if (elem.dataset[`${datasetKey}:`] != null) {
+							isExpression = true;
+						}
+
+						const data = elem.dataset[`${datasetKey}${isExpression ? ':' : ''}`];
 
 						if (data) {
-							if (typeof data === 'string'
-								&& data[0] === '#') {
-								const targetElem = document.getElementById(data.substr(1));
-								cartItemOptions[key] = targetElem.value || targetElem.innerText;
+							const result = isExpression
+								// eslint-disable-next-line no-new-func
+								? new Function('$', `return ${data}`)(document.querySelector.bind(document))
+								: data;
 
-								if (typeof cartItemOptions[key] === 'string') {
-									cartItemOptions[key] = cartItemOptions[key].replace(/ *\.$/, '');
-								}
-
-								return;
-							}
-
-							cartItemOptions[key] = data;
+							cartItemOptions[key] = result;
 						}
 					});
 
