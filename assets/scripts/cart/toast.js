@@ -24,13 +24,6 @@ export class ToastElement extends Element {
 		/** @type {StoreArray} 			*/	this.itemsW = new StoreArray();
 		/** @type {ToastItemElement[]} 	*/	this.toastItemElements = [];
 
-		this.itemsW.push(...[
-			ToastItem.from({
-				type: 'info',
-				text: 'hello',
-			}),
-		]);
-
 		let lastItems = [];
 		this.itemsW.subscribe((items) => {
 			const itemsDiffRemoved = items.length < lastItems.length
@@ -55,7 +48,9 @@ export class ToastElement extends Element {
 					return;
 				}
 
-				this.toastItemElements.push(item);
+				const toastItemElement = new ToastItemElement(null, item);
+				toastItemElement.render();
+				this.toastItemElements.push(toastItemElement);
 			});
 
 			lastItems = items;
@@ -70,7 +65,7 @@ export class ToastElement extends Element {
 
 		return html`
 			<div class='${classes.toasts}'>
-				${this.toastItemElements}
+				${this.toastItemElements.map((toastItemElement) => toastItemElement.renderTarget)}
 			</div>
 		`;
 	}
@@ -79,10 +74,18 @@ export class ToastElement extends Element {
 	get stylesheet() {
 		return {
 			toasts: {
+				position: 'fixed',
+				right: 0,
+				bottom: 0,
+				zIndex: 1000,
+				// padding: Vars.PADDING,
 				width: '100%',
 				minWidth: Breakpoints.MOBILE,
 				maxWidth: '50vw',
 				[`@media (max-width: ${Breakpoints.MOBILE * 2}px)`]: {
+					maxWidth: '75vw',
+				},
+				[`@media (max-width: ${Breakpoints.MOBILE * 1.5}px)`]: {
 					minWidth: 'unset',
 					maxWidth: 'unset',
 				},
@@ -123,24 +126,6 @@ export class ToastItemElement extends Element {
 		}
 	}
 
-	/**
-	 * @param {ToastType} type
-	 */
-	getIconColour(type) {
-		switch (type) {
-			case 'success':
-				return 'var(--success)';
-			case 'info':
-				return 'var(--info)';
-			case 'error':
-				return 'var(--danger)';
-			case 'warn':
-				return 'var(--warning)';
-			default:
-				return 'var(--white)';
-		}
-	}
-
 	activate() {
 		this.isOpen = true;
 		this.render();
@@ -177,11 +162,11 @@ export class ToastItemElement extends Element {
 		const { classes } = this;
 
 		return html`
-			<div class='${classes.toast}'>
-				<i class='fa ${this.getIconClass(this.item.type)} fa-md'></i>
+			<div class='${classes.toast} ${this.item.type}${this.isOpen ? ' active' : ''}'>
+				<i class='fa ${this.getIconClass(this.item.type)} fa-sm'></i>
 				<p>${this.item.text}</p>
 				<a @click=${() => this.dismiss()} href='#'>
-					<i class='fa fa-times fa-sm'></i>
+					<i class='fa fa-times-circle fa-sm'></i>
 				</a>
 			<div>
 		`;
@@ -191,7 +176,18 @@ export class ToastItemElement extends Element {
 		return {
 			toast: {
 				display: 'grid',
-				gridTemplateColumns: 'min-content auto min-content',
+				columnGap: '8px',
+				width: 'min-content',
+				float: 'right',
+				clear: 'right',
+				marginRight: '6px',
+				// marginTop: '24px',
+				padding: '8px 16px',
+				// borderRadius: '48px',
+				alignItems: 'center',
+				justifyItems: 'center',
+				gridTemplateColumns: '16px auto 16px',
+				color: 'white',
 				opacity: 0,
 				pointerEvents: 'none',
 				transform: 'translateY(200px)',
@@ -202,11 +198,28 @@ export class ToastItemElement extends Element {
 					transform: 'translateY(0)',
 					transition: `transform .5s ${Vars.EASE_FAST_SLOW}, opacity .2s ${Vars.EASE_SLOW_SLOW}`,
 				},
-				'& > .fa': {
+				'&.success': {
+					background: 'var(--success)',
 				},
-				'& > p': {
+				'&.info': {
+					background: 'var(--info)',
 				},
-				'& > .close': {
+				'&.error': {
+					background: 'var(--danger)',
+				},
+				'&.warn': {
+					background: 'var(--warning)',
+				},
+				'& > .fa, & > a': {
+					color: '#fff8',
+				},
+				'& > a:hover': {
+					color: '#0003',
+				},
+				[`@media (max-width: ${Breakpoints.MOBILE * 1.5}px)`]: {
+					float: 'unset',
+					marginLeft: 'auto',
+					marginRight: 'auto',
 				},
 			},
 		};
