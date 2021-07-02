@@ -95,8 +95,12 @@ export class Element {
 	onDestroy() {}
 
 	render() {
+		const template = this.template;
+
+		template.values = template.values.map((value) => !value && typeof value !== 'number' ? '' : value);
+
 		litRender(
-			this.template,
+			template,
 			this.renderTarget,
 		);
 
