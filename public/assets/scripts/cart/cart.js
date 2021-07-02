@@ -175,7 +175,7 @@ export class CartElement extends Element {
 			});
 	}
 
-	onApprove(details) {
+	onApprove(data, details) {
 		this.itemsW.value.forEach(async (/** @type {CartItem} */ item, i) => {
 			if (item.type === 'downloadable') {
 				await new Promise((resolve) => {
@@ -183,7 +183,7 @@ export class CartElement extends Element {
 					setTimeout(resolve, i * 300);
 				});
 
-				const uri = `/api/v1/download?i=${item.id}&o=${details.orderID}`;
+				const uri = `/api/v1/download?i=${item.id}&o=${data.orderID}`;
 				const a = document.createElement('a');
 				a.setAttribute('href', uri);
 				a.setAttribute('download', uri);
@@ -240,7 +240,7 @@ export class CartElement extends Element {
 			onApprove: async (data, actions) => {
 				const details = await actions.order.capture();
 
-				this.onApprove(details);
+				this.onApprove(data, details);
 			},
 
 			onError: (err) => {
