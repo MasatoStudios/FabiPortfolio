@@ -182,7 +182,7 @@ export class CartElement extends Element {
 		this.onDeactivate(this.lastClickSrc);
 	}
 
-	// @override
+	/** @override */
 	async onMount() {
 		this.mainElem = document.getElementsByClassName(this.classes.main)[0];
 		this.overlayElem = document.getElementsByClassName(this.classes.overlay)[0];
@@ -241,6 +241,7 @@ export class CartElement extends Element {
 		this.render();
 	}
 
+	/** @override */
 	get template() {
 		const { classes, itemsW } = this;
 		const { value: items } = itemsW;
@@ -306,6 +307,7 @@ export class CartElement extends Element {
 		`;
 	}
 
+	/** @override */
 	get stylesheet() {
 		return {
 			main: {
@@ -526,6 +528,7 @@ export class CartItemElement extends Element {
 		});
 	}
 
+	/** @override */
 	get template() {
 		const { itemW, classes } = this;
 		const { value: item } = itemW;
@@ -545,6 +548,7 @@ export class CartItemElement extends Element {
 		`;
 	}
 
+	/** @override */
 	get stylesheet() {
 		return {
 			item: {
