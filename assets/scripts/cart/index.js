@@ -362,7 +362,8 @@ export class CartElement extends Element {
 						height: 0,
 						float: 'right',
 						'& > .wrapper': {
-							background: 'white',
+							background: '#fffa',
+							backdropFilter: 'invert(1)',
 							width: 'calc(16.6666667vw - 5px)',
 							minWidth: 240,
 							padding: StyleVars.PADDING,
