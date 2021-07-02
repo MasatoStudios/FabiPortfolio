@@ -36,7 +36,7 @@ export class ToastElement extends Element {
 
 			let lastItemIndexOffset = 0;
 			itemsDiffRemoved.forEach((lastItem, lastItemIndex) => {
-				if (lastItem == null) {
+				if (!lastItem) {
 					return;
 				}
 
@@ -45,13 +45,18 @@ export class ToastElement extends Element {
 			});
 
 			itemsDiffAdded.forEach((item) => {
-				if (item == null) {
+				if (!item) {
 					return;
 				}
 
 				const toastItemElement = new ToastItemElement(null, item);
 				toastItemElement.render();
+
 				this.toastItemElements.push(toastItemElement);
+
+				toastItemElement.once('destroy', () => {
+					this.itemsW.splice(this.itemsW.findIndex((item) => item === toastItemElement.item), 1);
+				});
 			});
 
 			lastItems = [...items];
