@@ -24,7 +24,7 @@ export class CartItem extends Item {
 	constructor() {
 		super();
 
-		/** @type {string} Must be unique, follow the convention of: "productID:variantID" */
+		/** @type {string} Must be unique, follow the convention of: 'productID:variantID' */
 		this.id = undefined;
 		/** @type {string=Transparent Image} URL to the thumbnail, can be data url */
 		this.thumbnailSrc = 'data:image/octet-stream;base64,UklGRkAAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAIAAAAQAFZQOCAYAAAAMAEAnQEqAQABAA/A/iWkAANwAP7mtQAA';
@@ -183,7 +183,7 @@ export class CartElement extends Element {
 	}
 
 	// @override
-	onMount() {
+	async onMount() {
 		this.mainElem = document.getElementsByClassName(this.classes.main)[0];
 		this.overlayElem = document.getElementsByClassName(this.classes.overlay)[0];
 		this.xElem = document.getElementsByClassName(this.classes.x)[0];
@@ -191,6 +191,40 @@ export class CartElement extends Element {
 		// add deactivate hooks
 		this.overlayElem.addEventListener('click', () => this.deactivate());
 		this.xElem.addEventListener('click', () => this.deactivate());
+
+		if (window.paypal == null) {
+			// wait for window.paypal to appear
+			await new Promise((resolve) => {
+				const interval = setInterval(() => window.paypal && (clearInterval(interval), resolve()));
+			});
+		}
+
+		window.paypal.Buttons({
+			style: {
+				shape: 'rect',
+				color: 'gold',
+				layout: 'vertical',
+				label: 'paypal',
+
+			},
+
+			createOrder(data, actions) {
+				return actions.order.create({
+					// eslint-disable-next-line camelcase
+					purchase_units: [{ description: 'aaaaaaaaa', amount: { currency_code: 'USD', value: 1 } }],
+				});
+			},
+
+			onApprove(data, actions) {
+				return actions.order.capture().then((details) => {
+					alert('Transaction completed by ' + details.payer.name.given_name + '!');
+				});
+			},
+
+			onError(err) {
+				console.log(err);
+			},
+		}).render(`.${this.classes.paypal}`);
 	}
 
 	/** @param {Element} srcElem */
@@ -258,7 +292,9 @@ export class CartElement extends Element {
 								<h6>$${totalAdjustments}</h6>
 							</div>
 							<div style='height: 48px'></div>
-							<a class='checkout vlt-btn vlt-btn--primary vlt-btn--md' href='#'>Check-out</a>
+							<div class='${classes.paypal}'>
+								<a class='checkout vlt-btn vlt-btn--primary vlt-btn--md' href='#'>...</a>
+							</div>
 							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>Continue Shopping</a>
 						</div>
 					</div>
@@ -458,6 +494,7 @@ export class CartElement extends Element {
 					pointerEvents: 'auto',
 				},
 			},
+			paypal: {},
 		};
 	}
 }
