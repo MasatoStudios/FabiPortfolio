@@ -193,6 +193,7 @@ export class CartElement extends Element {
 
 		this.state = 'receipt';
 		this.render();
+		this.state = 'cart';
 
 		this.itemsW.value.splice(0, this.itemsW.length);
 	}
