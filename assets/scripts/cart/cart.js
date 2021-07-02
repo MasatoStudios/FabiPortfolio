@@ -28,7 +28,7 @@ export class CartItem extends Item {
 }
 
 export class CartElement extends Element {
-	constructor(renderTarget = document.getElementsByClassName('js-cart-render-target')[0]) {
+	constructor(renderTarget) {
 		super(renderTarget);
 
 		/** @type {StoreArray} 			*/ 	this.itemsW = new StoreArray();
@@ -571,5 +571,3 @@ export class CartItemElement extends Element {
 		throw new Error('Unimplemented');
 	}
 }
-
-new CartElement().render();
