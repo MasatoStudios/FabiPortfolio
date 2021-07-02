@@ -60,6 +60,10 @@ export class ToastElement extends Element {
 		});
 	}
 
+	get store() {
+		return this.itemsW;
+	}
+
 	/** @override */
 	get template() {
 		const { classes } = this;
