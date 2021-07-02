@@ -4,6 +4,8 @@ import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
 import { Element } from './core/element.js';
 import { Vars, MediaQueries } from './core/style.js';
+import { getToast } from './index.js';
+import { ToastItem } from './toast.js';
 
 export class CartItem extends Item {
 	constructor() {
@@ -186,7 +188,11 @@ export class CartElement extends Element {
 			},
 
 			onError(err) {
-				console.log(err);
+				getToast().itemsW.push(ToastItem.from({
+					type: 'error',
+					text: err.message,
+					time: 10000,
+				}));
 			},
 		}).render(`.${this.classes.paypal}`);
 	}
