@@ -243,10 +243,10 @@ export class CartElement extends Element {
 								<h6>$${totalAdjustments}</h6>
 							</div>
 							<div style='height: 48px'></div>
-							<div class='${classes.paypal}'>
-								<a class='checkout vlt-btn vlt-btn--primary vlt-btn--md' href='#'>...</a>
-							</div>
-							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>Continue Shopping</a>
+							<div class='${classes.paypal}'></div>
+							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
+								Continue Shopping
+							</a>
 						</div>
 					</div>
 					<div class='items'>
@@ -366,25 +366,20 @@ export class CartElement extends Element {
 							'& > .vlt-btn': {
 								zIndex: 'unset',
 								width: '100%',
-							},
-							'& > .checkout': {
-								background: 'black',
-							},
-							'& > .checkout:hover, & > .checkout:active': {
-								background: 'transparent',
-								color: 'black',
-								boxShadow: 'inset 0 0 0 1px black',
-							},
-							'& > .checkout:active': {
-								background: 'black',
+								height: 45,
 							},
 							'& > .continue': {
 								background: 'transparent',
 								color: 'black',
+								boxShadow: 'inset 0 0 0 1px black',
 							},
-							'& > .continue:hover': {
-								color: 'grey',
-								boxShadow: 'none',
+							'& > .continue:hover, & > .continue:active': {
+								background: 'black',
+								color: 'white',
+							},
+							'& > .continue:active': {
+								background: 'transparent',
+								color: 'transparent',
 							},
 							'@media (max-width: 1480px)': {
 								height: 'auto',
