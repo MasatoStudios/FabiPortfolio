@@ -248,7 +248,7 @@ export class CartElement extends Element {
 		/** @type {number} 				*/	const totalRaw = items.reduce((prev, curr) => prev + (curr.pricePerItem * curr.quantity), 0);
 		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + (curr.pricePerItem * curr.quantity * ((100 - curr.discountPercent) / 100)), 0);
 		/** @type {number} 				*/	const totalAdjustments = total - totalRaw;
-		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(item));
+		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(null, item));
 
 		cartItemElements.forEach((cartItemElement) => {
 			cartItemElement.itemW.subscribeLazy((item) => {
@@ -500,9 +500,12 @@ export class CartElement extends Element {
 }
 
 export class CartItemElement extends Element {
-	/** @param {CartItem} item */
-	constructor(item) {
-		super(null);
+	/**
+	 * @param {CartItem} item
+	 * @param {Element | null} renderTarget
+	 * */
+	constructor(renderTarget, item) {
+		super(renderTarget || null);
 
 		/** @type {Store} */ 	this.itemW = new Store(item);
 	}
@@ -611,6 +614,7 @@ export class CartItemElement extends Element {
 		};
 	}
 
+	/** @private */
 	render() {
 		throw new Error('Unimplemented');
 	}
