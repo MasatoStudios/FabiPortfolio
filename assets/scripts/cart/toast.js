@@ -10,6 +10,7 @@ export class ToastItem extends Item {
 
 		/** @type {ToastType} 	*/ 	this.type = 'info';
 		/** @type {string} 		*/	this.text = '';
+		/** @type {number} 		*/	this.time = 3000;
 	}
 }
 
@@ -141,6 +142,10 @@ export class ToastItemElement extends Element {
 		requestAnimationFrame(() => {
 			this.activate();
 		});
+
+		if (this.item.time) {
+			this.scheduleDismiss(this.item.time);
+		}
 	}
 
 	/**
