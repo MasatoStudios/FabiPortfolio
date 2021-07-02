@@ -186,7 +186,7 @@ export class ToastItemElement extends Element {
 			toast: {
 				display: 'grid',
 				columnGap: '8px',
-				width: 'min-content',
+				width: 'fit-content',
 				float: 'right',
 				clear: 'right',
 				marginRight: '6px',
