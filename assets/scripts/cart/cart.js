@@ -16,7 +16,6 @@ export class CartItem extends Item {
 		this.thumbnailSrc = 'data:image/octet-stream;base64,UklGRkAAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAIAAAAQAFZQOCAYAAAAMAEAnQEqAQABAA/A/iWkAANwAP7mtQAA';
 		/** @type {string} Display name of product, doesn't have to be unique */
 		this.name = undefined;
-		// todo: make null variant hide variant text
 		/** @type {string} Display variant of product, doesn't have to be unique */
 		this.variant = undefined;
 		/** @type {number=1} */
@@ -27,13 +26,17 @@ export class CartItem extends Item {
 		this.discountPercent = 0;
 	}
 
+	get priceTotalAdjustment() {
+		return this.priceTotalUnadjusted * (-this.discountPercent / 100);
+	}
+
 	get priceTotalUnadjusted() {
 		return this.pricePerItem * this.quantity;
 	}
 
 	get priceTotal() {
 		return Number(
-			(this.priceTotalUnadjusted - (this.priceTotalUnadjusted * (this.discountPercent / 100)))
+			(this.priceTotalUnadjusted + this.priceTotalAdjustment)
 				.toFixed(2),
 		);
 	}
@@ -80,7 +83,7 @@ export class CartElement extends Element {
 				quantity: 1,
 				pricePerItem: 10,
 				discountPercent: 10,
-				variant: 'A',
+				variant: null,
 			}),
 			CartItem.from({
 				id: '2:A',
@@ -276,7 +279,7 @@ export class CartElement extends Element {
 								<h6>$${total}</h6>
 								<br>
 								<p>Total Price Adjustments: </p>
-								<h6>$${totalAdjustments}</h6>
+								<h6>${totalAdjustments > 0 ? '' : '-'}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
 							</div>
 							<div style='height: 48px'></div>
 							<div class='${classes.paypal}'></div>
@@ -521,8 +524,8 @@ export class CartItemElement extends Element {
 			<div class='${classes.item}'>
 				<img class='thumbnail' src='${item.thumbnailSrc}'>
 				<h6 class='name'>${item.name}</h6>
-				<p class='variant'><b>${item.variant}</b></p>
-				<p class='price'>$${item.pricePerItem * item.quantity}</p>
+				${item.variant && html`<p class='variant'><b>${item.variant}</b></p>`}
+				<p class='price'>$${item.priceTotalUnadjusted}${item.discountPercent ? ` (${item.priceTotalAdjustment > 0 ? '' : '-'}$${Math.abs(item.priceTotalAdjustment.toFixed(2))})` : ''}</p>
 				<div class='quantity'>
 					<a @click=${() => this.onDecrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>
 					<p>${item.quantity}</p>
@@ -551,6 +554,7 @@ export class CartItemElement extends Element {
 					gridArea: 'name',
 				},
 				'&  > .price': {
+					textAlign: 'right',
 					color: 'white',
 					gridArea: 'price',
 					lineHeight: '1.1em',
