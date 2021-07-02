@@ -134,6 +134,36 @@ export class CartElement extends Element {
 					}
 				});
 			});
+
+		Array
+			.from(document.getElementsByClassName('js-cart-add'))
+			.forEach((elem) => {
+				elem.addEventListener('click', () => {
+					const cartItemOptions = {};
+
+					Object.keys(new CartItem()).forEach((key) => {
+						const data = elem.dataset[`cartAdd${key[0].toUpperCase() + key.slice(1)}`];
+
+						if (data) {
+							if (typeof data === 'string'
+								&& data[0] === '#') {
+								const targetElem = document.getElementById(data.substr(1));
+								cartItemOptions[key] = targetElem.value || targetElem.innerText;
+
+								if (typeof cartItemOptions[key] === 'string') {
+									cartItemOptions[key] = cartItemOptions[key].replace(/ *\.$/, '');
+								}
+
+								return;
+							}
+
+							cartItemOptions[key] = data;
+						}
+					});
+
+					cart.store.push(CartItem.from(cartItemOptions));
+				});
+			});
 	}
 
 	onApprove(data) {
