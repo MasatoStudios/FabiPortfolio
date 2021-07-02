@@ -3,10 +3,16 @@ import jss from 'https://unpkg.com/jss@10.7.1/dist/jss.bundle.js';
 import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/jss-preset-default.bundle.js';
 
 export class Element {
+	/**
+	 * @typedef {{detail: *}} ElementEventData
+	 * @typedef {(event: ElementEventData) => void} ElementEventCallback
+	 */
+
 	/** @param {Element} renderTarget */
 	constructor(renderTarget) {
-		/** @type {HTMLElement} */ 	this.renderTarget = renderTarget;
-		/** @type {boolean} 	*/ 	this.isMounted = false;
+		/** @type {HTMLElement} 							*/ 	this.renderTarget = renderTarget;
+		/** @type {boolean} 								*/ 	this.isMounted = false;
+		/** @type {Map<string, ElementEventCallback[]>} 	*/ 	this.eventStringToCallbacksMap = new Map();
 
 		if (!(renderTarget instanceof HTMLElement)) {
 			this.renderTarget = document.createElement('div');
@@ -21,6 +27,69 @@ export class Element {
 		this.classes = classes;
 	}
 
+	/**
+	 * @param {string} eventString 
+	 * @param {ElementEventCallback} callback 
+	 */
+	on(eventString, callback) {
+		let callbacks = this.eventStringToCallbacksMap.get(eventString);
+
+		if (callbacks == null) {
+			callbacks = [];
+			this.eventStringToCallbacksMap.set(eventString, callbacks);
+		}
+
+		callbacks.push(callback);
+	}
+
+		/**
+	 * @param {string} eventString 
+	 * @param {ElementEventCallback} callback 
+	 */
+	once(eventString, callback) {
+		this.on(eventString, (event) => {
+			callback(event);
+
+			this.off(eventString, callback);
+		});
+	}
+
+	/**
+	 * @param {string} eventString 
+	 * @param {ElementEventCallback} callback 
+	 */
+	off(eventString, callback) {
+		const callbacks = this.eventStringToCallbacksMap.get(eventString);
+		
+		if (callbacks == null) {
+			return;
+		}
+
+		const callbackIndex = callbacks.indexOf(callback);
+
+		if (callbackIndex == null) {
+			return;
+		}
+
+		callbacks.splice(callbackIndex, 1);
+	}
+
+	/**
+	 * @param {string} eventString 
+	 * @param {ElementEventData} data 
+	 */
+	dispatch(eventString, data = {}) {
+		const callbacks = this.eventStringToCallbacksMap.get(eventString);
+		
+		if (callbacks == null) {
+			return;
+		}
+
+		callbacks.forEach((callback) => {
+			callback({ detail: data.detail });
+		});
+	}
+
 	onAttach() {}
 	onMount() {}
 	onDestroy() {}
@@ -33,6 +102,7 @@ export class Element {
 
 		if (!this.isMounted) {
 			this.isMounted = true;
+			this.dispatch('mount');
 			this.onMount();
 		}
 	}
@@ -43,6 +113,7 @@ export class Element {
 			this.renderTarget,
 		);
 
+		this.dispatch('destroy');
 		this.onDestroy();
 	}
 
@@ -50,6 +121,7 @@ export class Element {
 	attach(parent) {
 		parent.appendChild(this.renderTarget);
 
+		this.dispatch('attach');
 		this.onAttach();
 	}
 
