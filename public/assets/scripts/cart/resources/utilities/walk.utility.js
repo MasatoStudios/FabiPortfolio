@@ -1,31 +1,20 @@
 export class WalkUtility {
-	static object(object, callback) {
-		if (typeof object !== 'object') {
-			return callback(object);
-		}
-
-		const keys = Object.keys(object);
-		const result = {};
-		for (let i = 0, l = keys.length; i < l; ++i) {
-			const key = keys[i];
-			const value = object[key];
-			result[key] = this.object(value, callback);
-		}
-
-		return result;
-	}
-
-	static void(object, callback) {
-		if (typeof object !== 'object') {
-			callback(object);
-			return;
-		}
-
+	static walk(object, callback) {
 		const keys = Object.keys(object);
 		for (let i = 0, l = keys.length; i < l; ++i) {
 			const key = keys[i];
 			const value = object[key];
-			this.object(value, callback);
+
+			const result = callback(value, key, object);
+
+			if (result === WalkUtility.STOP) {
+				continue;
+			}
+
+			if (value !== null
+				&& typeof value === 'object') {
+				this.walk(value, callback);
+			}
 		}
 	}
 
@@ -49,3 +38,4 @@ export class WalkUtility {
 		}
 	}
 }
+WalkUtility.STOP = Symbol('Stop traversal');
