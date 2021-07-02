@@ -156,7 +156,7 @@ export class ToastItemElement extends Element {
 	 * @param {number} ms
 	 */
 	scheduleDismiss(ms) {
-		setTimeout(() => this.dismiss, ms);
+		setTimeout(() => this.dismiss(), ms);
 	}
 
 	dismiss() {
