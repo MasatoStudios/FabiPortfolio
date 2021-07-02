@@ -28,6 +28,31 @@ export class CartItem extends Item {
 		this.type = 'generic';
 	}
 
+	/** @override */
+	static from(options) {
+		const item = super.from(options);
+
+		Object.keys(item).forEach((/** @type {keyof CartItem} */ key) => {
+			switch (key) {
+				case 'quantity':
+				case 'pricePerItem':
+				case 'discountPercent':
+					item[key] = Number(item[key]);
+					break;
+				case 'id':
+				case 'thumbnailSrc':
+				case 'name':
+				case 'type':
+				case 'variant':
+					item[key] = String(item[key]);
+					break;
+				default:
+			}
+		});
+
+		return item;
+	}
+
 	get priceTotalAdjustment() {
 		return this.priceTotalUnadjusted * (-this.discountPercent / 100);
 	}
