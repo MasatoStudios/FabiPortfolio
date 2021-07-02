@@ -183,7 +183,7 @@ export class CartElement extends Element {
 					setTimeout(resolve, i * 300);
 				});
 
-				const uri = `/api/v1/download?i=${item.id}&o=${data.orderID}`;
+				const uri = `/api/v1/download?i=${encodeURIComponent(item.id)}&o=${encodeURIComponent(data.orderID)}`;
 				const a = document.createElement('a');
 				a.setAttribute('href', uri);
 				a.setAttribute('download', uri);
