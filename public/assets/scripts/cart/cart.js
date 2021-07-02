@@ -53,6 +53,12 @@ export class CartElement extends Element {
 		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
 		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
 
+		try {
+			JSON.parse(localStorage.getItem('cart')).forEach((item) => {
+				this.itemsW.value.push(CartItem.from(item));
+			});
+		} catch (_) {}
+
 		let lastItemsLength = this.itemsW.value.length;
 		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
@@ -90,60 +96,9 @@ export class CartElement extends Element {
 			if (items.length !== lastItemsLength) {
 				lastItemsLength = items.length;
 			}
-		});
 
-		this.itemsW.push(...[
-			CartItem.from({
-				id: 'product1',
-				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
-				name: 'Product 1',
-				quantity: 1,
-				pricePerItem: 10,
-				discountPercent: 10,
-				variant: null,
-				type: 'downloadable',
-			}),
-			CartItem.from({
-				id: 'product2:A',
-				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
-				name: 'Product 2',
-				quantity: 1,
-				pricePerItem: 10,
-				discountPercent: 0,
-				variant: 'A',
-				type: 'downloadable',
-			}),
-			CartItem.from({
-				id: 'product3:A',
-				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
-				name: 'Product 3',
-				quantity: 1,
-				pricePerItem: 10,
-				discountPercent: 0,
-				variant: 'A',
-				type: 'downloadable',
-			}),
-			CartItem.from({
-				id: 'product4:A',
-				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
-				name: 'Product 4',
-				quantity: 1,
-				pricePerItem: 10,
-				discountPercent: 0,
-				variant: 'A',
-				type: 'downloadable',
-			}),
-			CartItem.from({
-				id: 'product4:A',
-				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
-				name: 'Product 4',
-				quantity: 4,
-				pricePerItem: 10,
-				discountPercent: 0,
-				variant: 'A',
-				type: 'downloadable',
-			}),
-		]);
+			localStorage.setItem('cart', JSON.stringify(items));
+		});
 	}
 
 	activate() {
