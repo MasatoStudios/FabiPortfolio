@@ -26,6 +26,8 @@ export class CartItem extends Item {
 		this.discountPercent = 0;
 		/** @type {'generic' | 'downloadable'} */
 		this.type = 'generic';
+		/** @type {'internal' | 'external'} */
+		this.source = 'internal';
 	}
 
 	/** @override */
@@ -42,8 +44,9 @@ export class CartItem extends Item {
 				case 'id':
 				case 'thumbnailSrc':
 				case 'name':
-				case 'type':
 				case 'variant':
+				case 'type':
+				case 'source':
 					item[key] = String(item[key]);
 					break;
 				default:
@@ -87,9 +90,10 @@ export class CartElement extends Element {
 		let lastItemsLength = this.itemsW.value.length;
 		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
+			let isFromExternalSource;
 
 			// merge items with the same ids
-			items.forEach((item, i) => {
+			items.forEach((/** @type {CartItem} */ item, i) => {
 				const index = idToIndexMap.get(item.id);
 
 				if (index == null) {
@@ -98,13 +102,15 @@ export class CartElement extends Element {
 					return;
 				}
 
+				isFromExternalSource = item.source === 'external';
 				items[index].quantity += item.quantity;
-				items.splice(index, 1);
+				items.splice(i, 1);
 			});
 
 			this.render();
 
-			if (items.length > lastItemsLength) {
+			if (isFromExternalSource
+				|| items.length > lastItemsLength) {
 				toast.store.push(ToastItem.from({
 					text: 'Added to cart.',
 					type: 'success',
@@ -164,7 +170,9 @@ export class CartElement extends Element {
 			.from(document.getElementsByClassName('js-cart-add'))
 			.forEach((elem) => {
 				elem.addEventListener('click', () => {
-					const cartItemOptions = {};
+					const cartItemOptions = {
+						source: 'external',
+					};
 
 					Object.keys(new CartItem()).forEach((key) => {
 						const data = elem.dataset[`cartAdd${key[0].toUpperCase() + key.slice(1)}`];
