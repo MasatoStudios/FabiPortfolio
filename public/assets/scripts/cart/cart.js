@@ -53,6 +53,7 @@ export class CartElement extends Element {
 		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
 		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
 
+		let lastItemsLength = this.itemsW.value.length;
 		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
 
@@ -72,10 +73,23 @@ export class CartElement extends Element {
 
 			this.render();
 
-			toast.store.push(ToastItem.from({
-				text: 'Added to cart.',
-				type: 'success',
-			}));
+			if (items.length > lastItemsLength) {
+				toast.store.push(ToastItem.from({
+					text: 'Added to cart.',
+					type: 'success',
+				}));
+			}
+
+			if (items.length < lastItemsLength) {
+				toast.store.push(ToastItem.from({
+					text: 'Removed from cart.',
+					type: 'success',
+				}));
+			}
+
+			if (items.length !== lastItemsLength) {
+				lastItemsLength = items.length;
+			}
 		});
 
 		this.itemsW.push(...[
