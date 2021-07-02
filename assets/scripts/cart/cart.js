@@ -107,7 +107,7 @@ export class CartElement extends Element {
 				});
 			});
 
-		this.itemsW.subscribe((items) => {
+		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
 
 			// merge items with the same ids
