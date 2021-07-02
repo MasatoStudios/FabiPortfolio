@@ -299,7 +299,7 @@ export class CartElement extends Element {
 					padding: Vars.PADDING,
 					width: '100%',
 					height: '100%',
-					background: 'linear-gradient(210deg, #cf000f 0%, #cf000f00 100%)',
+					background: 'linear-gradient(210deg, #cf000f 0%, #cf000f00 60%, #cf000f00 100%)',
 					zIndex: -1,
 				},
 				'& > .header': {
@@ -332,7 +332,7 @@ export class CartElement extends Element {
 						top: 0,
 						width: '100%',
 						height: `calc(${Vars.PADDING} * 4)`,
-						background: 'linear-gradient(180deg, #000c 0%, #000b 30%, #0003 80%, #0000 100%)',
+						background: 'linear-gradient(180deg, #000f 0%, #000e 30%, #0003 80%, #0000 100%)',
 					},
 					'& > .title': {
 						position: 'sticky',
@@ -399,6 +399,9 @@ export class CartElement extends Element {
 						'@media (max-width: 1480px)': {
 							maxWidth: '100vw',
 							minWidth: 'unset',
+						},
+						'& > div:last-child > div': {
+							marginBottom: 0,
 						},
 					},
 				},
@@ -499,7 +502,7 @@ export class CartItemElement extends Element {
 			item: {
 				display: 'grid',
 				gridTemplateAreas: `'thumbnail name price quantity'
-									'thumbnail variant _ _'`,
+									'thumbnail variant _ quantity'`,
 				gridTemplateColumns: '48px auto repeat(2, min-content)',
 				gridTemplateRows: 'repeat(2, min-content)',
 				columnGap: 48,
@@ -514,22 +517,22 @@ export class CartItemElement extends Element {
 				'&  > .price': {
 					color: 'white',
 					gridArea: 'price',
-					alignSelf: 'center',
+					lineHeight: '1.1em',
 				},
 				'&  > .quantity': {
 					gridArea: 'quantity',
 					display: 'grid',
-					gridTemplateColumns: 'repeat(3, 45px)',
+					gridTemplateColumns: 'repeat(3, 38px)',
 					alignItems: 'center',
 					justifyItems: 'center',
+					height: 'min-content',
 					color: 'white',
 					'& > .vlt-btn': {
-						borderRadius: Vars.PADDING,
 						zIndex: 'unset',
 						padding: 16,
-						background: 'transparent',
+						background: '#fff0',
 						boxShadow: 'inset 0 0 0 1px white',
-						opacity: 0.3,
+						position: 'unset',
 						'&:hover': {
 							boxShadow: 'inset 0 0 0 1px #fff0',
 						},
@@ -539,10 +542,9 @@ export class CartItemElement extends Element {
 					},
 				},
 				'& > .variant': {
-					lineHeight: '0.5em',
+					// lineHeight: '0.5em',
 					gridArea: 'variant',
 					'@media (max-width: 500px)': {
-						lineHeight: '1em',
 						marginBottom: '8px',
 					},
 				},
@@ -555,9 +557,6 @@ export class CartItemElement extends Element {
 										'thumbnail quantity _'`,
 					gridTemplateColumns: '48px auto min-content',
 					gridTemplateRows: 'repeat(3, min-content)',
-				},
-				'&:last-child': {
-					marginBottom: 0,
 				},
 			},
 		};
