@@ -4,6 +4,7 @@ import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
 import { Element } from './core/element.js';
 import { Vars, MediaQueries } from './core/style.js';
+import { toast, ToastItem } from './toast.js';
 
 export class CartItem extends Item {
 	constructor() {
@@ -15,7 +16,6 @@ export class CartItem extends Item {
 		this.thumbnailSrc = 'data:image/octet-stream;base64,UklGRkAAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAIAAAAQAFZQOCAYAAAAMAEAnQEqAQABAA/A/iWkAANwAP7mtQAA';
 		/** @type {string} Display name of product, doesn't have to be unique */
 		this.name = undefined;
-		// todo: make null variant hide variant text
 		/** @type {string} Display variant of product, doesn't have to be unique */
 		this.variant = undefined;
 		/** @type {number=1} */
@@ -24,6 +24,12 @@ export class CartItem extends Item {
 		this.pricePerItem = undefined;
 		/** @type {number=0} */
 		this.discountPercent = 0;
+		/** @type {'generic' | 'downloadable'} */
+		this.type = 'generic';
+	}
+
+	get priceTotalAdjustment() {
+		return this.priceTotalUnadjusted * (-this.discountPercent / 100);
 	}
 
 	get priceTotalUnadjusted() {
@@ -31,7 +37,10 @@ export class CartItem extends Item {
 	}
 
 	get priceTotal() {
-		return this.priceTotalUnadjusted - (this.priceTotalUnadjusted * this.discountPercent);
+		return Number(
+			(this.priceTotalUnadjusted + this.priceTotalAdjustment)
+				.toFixed(2),
+		);
 	}
 }
 
@@ -42,6 +51,32 @@ export class CartElement extends Element {
 		/** @type {StoreArray} 			*/ 	this.itemsW = new StoreArray();
 		/** @type {boolean} 			*/ 	this.isOpen = false;
 		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
+		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
+
+		this.itemsW.subscribeLazy((items) => {
+			const idToIndexMap = new Map();
+
+			// merge items with the same ids
+			items.forEach((item, i) => {
+				const index = idToIndexMap.get(item.id);
+
+				if (index == null) {
+					idToIndexMap.set(item.id, i);
+
+					return;
+				}
+
+				items[index].quantity += item.quantity;
+				items.splice(index, 1);
+			});
+
+			this.render();
+
+			toast.store.push(ToastItem.from({
+				text: 'Added to cart.',
+				type: 'success',
+			}));
+		});
 
 		this.itemsW.push(...[
 			CartItem.from({
@@ -50,8 +85,8 @@ export class CartElement extends Element {
 				name: 'Product 1',
 				quantity: 1,
 				pricePerItem: 10,
-				discountPercent: 0,
-				variant: 'A',
+				discountPercent: 10,
+				variant: null,
 			}),
 			CartItem.from({
 				id: '2:A',
@@ -90,7 +125,20 @@ export class CartElement extends Element {
 				variant: 'A',
 			}),
 		]);
+	}
 
+	activate() {
+		this.isOpen = true;
+		this.onActivate(this.lastClickSrc);
+	}
+
+	deactivate() {
+		this.isOpen = false;
+		this.onDeactivate(this.lastClickSrc);
+	}
+
+	/** @override */
+	onAttach() {
 		// add listener to all store buttons;
 		Array
 			.from(document.getElementsByClassName('js-cart-button'))
@@ -106,43 +154,33 @@ export class CartElement extends Element {
 					}
 				});
 			});
+	}
 
-		this.itemsW.subscribe((items) => {
-			const idToIndexMap = new Map();
+	onApprove(details) {
+		this.itemsW.value.forEach(async (/** @type {CartItem} */ item, i) => {
+			if (item.type === 'downloadable') {
+				await new Promise((resolve) => {
+					// prevent download file count throttle
+					setTimeout(resolve, i * 300);
+				});
 
-			// merge items with the same ids
-			items.forEach((item, i) => {
-				const index = idToIndexMap.get(item.id);
-
-				if (index == null) {
-					idToIndexMap.set(item.id, i);
-
-					return;
-				}
-
-				items[index].quantity += item.quantity;
-				items.splice(index, 1);
-			});
-
-			this.render();
+				const uri = `/api/v1/download?i=${item.id}&o=${details.orderID}`;
+				const a = document.createElement('a');
+				a.setAttribute('href', uri);
+				a.setAttribute('download', uri);
+				a.setAttribute();
+				a.click();
+			}
 		});
-	}
 
-	activate() {
-		this.isOpen = true;
-		this.onActivate(this.lastClickSrc);
-	}
-
-	deactivate() {
-		this.isOpen = false;
-		this.onDeactivate(this.lastClickSrc);
+		this.itemsW.splice(0, this.itemsW.length);
 	}
 
 	/** @override */
 	async onMount() {
-		this.mainElem = document.getElementsByClassName(this.classes.main)[0];
-		this.overlayElem = document.getElementsByClassName(this.classes.overlay)[0];
-		this.xElem = document.getElementsByClassName(this.classes.x)[0];
+		this.mainElem = this.renderTarget.getElementsByClassName(this.classes.main)[0];
+		this.overlayElem = this.renderTarget.getElementsByClassName(this.classes.overlay)[0];
+		this.xElem = this.renderTarget.getElementsByClassName(this.classes.x)[0];
 
 		// add deactivate hooks
 		this.overlayElem.addEventListener('click', () => this.deactivate());
@@ -155,7 +193,6 @@ export class CartElement extends Element {
 			});
 		}
 
-		const { value: items } = this.itemsW;
 		const idPrefix = `${Date.now()}:${Math.floor(Math.random() * 1000)}`;
 
 		window.paypal.Buttons({
@@ -166,27 +203,31 @@ export class CartElement extends Element {
 				label: 'paypal',
 			},
 
-			createOrder(data, actions) {
-				return actions.order.create({
-					/* eslint-disable camelcase */
-					purchase_units: items.map((/** @type {CartItem} */ item) => ({
-						reference_id: `${idPrefix}:${item.id}`,
-						description: `${item.name} (x${item.quantity})`,
-						amount: {
-							currency_code: 'USD',
-							value: item.priceTotal,
-						},
-					})),
-					/* eslint-enable camelcase */
-				});
-			},
+			createOrder: (data, actions) => actions.order.create({
+				/* eslint-disable camelcase */
+				purchase_units: this.itemsW.value.map((/** @type {CartItem} */ item) => ({
+					reference_id: `${idPrefix}:${item.id}`,
+					description: `${item.name} (x${item.quantity})`,
+					amount: {
+						currency_code: 'USD',
+						value: item.priceTotal,
+					},
+				})),
+				/* eslint-enable camelcase */
+			}),
 
-			async onApprove(data, actions) {
+			onApprove: async (data, actions) => {
 				const details = await actions.order.capture();
+
+				this.onApprove(details);
 			},
 
-			onError(err) {
-				console.log(err);
+			onError: (err) => {
+				toast.store.push(ToastItem.from({
+					type: 'error',
+					text: err.message,
+					time: 10000,
+				}));
 			},
 		}).render(`.${this.classes.paypal}`);
 	}
@@ -205,15 +246,20 @@ export class CartElement extends Element {
 		this.render();
 	}
 
+	get store() {
+		return this.itemsW;
+	}
+
 	/** @override */
 	get template() {
 		const { classes, itemsW } = this;
 		const { value: items } = itemsW;
 
+		/** @type {boolean} 			*/	const isReceipt = this.state === 'receipt';
 		/** @type {number} 				*/	const totalUnadjusted = items.reduce((prev, curr) => prev + curr.priceTotalUnadjusted, 0);
 		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + curr.priceTotal, 0);
 		/** @type {number} 				*/	const totalAdjustments = total - totalUnadjusted;
-		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(null, item));
+		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(null, item, !isReceipt));
 
 		cartItemElements.forEach((cartItemElement) => {
 			cartItemElement.itemW.subscribeLazy((item) => {
@@ -242,12 +288,13 @@ export class CartElement extends Element {
 			<div class='${classes.main}${this.isOpen ? ' active' : ''}'>
 				<div class='gradient'></div>
 				<div class='header'>
-					<p>Your Cart</p>
+					<p>${isReceipt ? 'Your Receipt' : 'Your Cart'}</p>
 				</div>
 				<div class='content'>
 					<div class='shade'></div>
 					<div class='title'>
-						<h3>${items.length} item${items.length === 1 ? '' : 's'}.</h3>
+						<h3>${items.length} item${items.length === 1 ? '' : 's'}${isReceipt && ' Purchased'}.</h3>
+						${isReceipt && items.some((item) => item.type === 'downloadable') && html`<p>Downloads should start at any moment.</p>`}
 					</div>
 					<div class='summary'>
 						<div class='wrapper'>
@@ -256,10 +303,10 @@ export class CartElement extends Element {
 								<h6>$${total}</h6>
 								<br>
 								<p>Total Price Adjustments: </p>
-								<h6>$${totalAdjustments}</h6>
+								<h6>${totalAdjustments < 0 ? '-' : ''}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
 							</div>
 							<div style='height: 48px'></div>
-							<div class='${classes.paypal}'></div>
+							${!isReceipt && html`<div class='${classes.paypal}'></div>`}
 							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
 								Continue Shopping
 							</a>
@@ -469,11 +516,13 @@ export class CartItemElement extends Element {
 	/**
 	 * @param {CartItem} item
 	 * @param {Element | null} renderTarget
+	 * @param {boolean} isEditable
 	 * */
-	constructor(renderTarget, item) {
+	constructor(renderTarget, item, isEditable = true) {
 		super(renderTarget || null);
 
-		/** @type {Store} */ 	this.itemW = new Store(item);
+		/** @type {Store} 	*/ 	this.itemW = new Store(item);
+		/** @type {boolean} */ 	this.isEditable = isEditable;
 	}
 
 	onDecrement() {
@@ -501,12 +550,12 @@ export class CartItemElement extends Element {
 			<div class='${classes.item}'>
 				<img class='thumbnail' src='${item.thumbnailSrc}'>
 				<h6 class='name'>${item.name}</h6>
-				<p class='variant'><b>${item.variant}</b></p>
-				<p class='price'>$${item.pricePerItem * item.quantity}</p>
+				${item.variant && html`<p class='variant'><b>${item.variant}</b></p>`}
+				<p class='price'>$${item.priceTotalUnadjusted}${item.priceTotalAdjustment ? ` (${item.priceTotalAdjustment > 0 ? '' : '-'}$${Math.abs(item.priceTotalAdjustment.toFixed(2))})` : ''}</p>
 				<div class='quantity'>
-					<a @click=${() => this.onDecrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>
+					${this.isEditable && html`<a @click=${() => this.onDecrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>`}
 					<p>${item.quantity}</p>
-					<a @click=${() => this.onIncrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>+</a>
+					${this.isEditable && html`<a @click=${() => this.onIncrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>+</a>`}
 				</div>
 			</div>
 		`;
@@ -531,6 +580,7 @@ export class CartItemElement extends Element {
 					gridArea: 'name',
 				},
 				'&  > .price': {
+					textAlign: 'right',
 					color: 'white',
 					gridArea: 'price',
 					lineHeight: '1.1em',
@@ -578,3 +628,12 @@ export class CartItemElement extends Element {
 		};
 	}
 }
+
+/** @type {CartElement}		*/	const cart = new CartElement();
+
+cart.render();
+cart.attach(document.body);
+
+export {
+	cart,
+};

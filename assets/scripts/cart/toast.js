@@ -54,10 +54,14 @@ export class ToastElement extends Element {
 				this.toastItemElements.push(toastItemElement);
 			});
 
-			lastItems = items;
+			lastItems = [...items];
 
 			this.render();
 		});
+	}
+
+	get store() {
+		return this.itemsW;
 	}
 
 	/** @override */
@@ -143,7 +147,7 @@ export class ToastItemElement extends Element {
 			this.activate();
 		});
 
-		if (this.item.time) {
+		if (this.item.time >= 0) {
 			this.scheduleDismiss(this.item.time);
 		}
 	}
@@ -152,7 +156,7 @@ export class ToastItemElement extends Element {
 	 * @param {number} ms
 	 */
 	scheduleDismiss(ms) {
-		setTimeout(() => this.dismiss, ms);
+		setTimeout(() => this.dismiss(), ms);
 	}
 
 	dismiss() {
@@ -182,7 +186,7 @@ export class ToastItemElement extends Element {
 			toast: {
 				display: 'grid',
 				columnGap: '8px',
-				width: 'min-content',
+				width: 'fit-content',
 				float: 'right',
 				clear: 'right',
 				marginRight: '6px',
@@ -230,3 +234,12 @@ export class ToastItemElement extends Element {
 		};
 	}
 }
+
+/** @type {ToastElement}	*/	const toast = new ToastElement();
+
+toast.render();
+toast.attach(document.body);
+
+export {
+	toast,
+};
