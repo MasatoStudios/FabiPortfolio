@@ -1,8 +1,9 @@
 import { html, render as litRender } from 'https://unpkg.com/lit-html@1.4.1/lit-html.js';
 import jss from 'https://unpkg.com/jss@10.7.1/dist/jss.bundle.js';
 import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/jss-preset-default.bundle.js';
-import { Store } from './core/store.js';
 import { Item } from './core/blocks/item.js';
+import { StoreArray } from './core/store/extended/array.js';
+import { Store } from './core/store.js';
 
 export const StyleVars = {
 	EASE_SLOW_SLOW: 'cubic-bezier(0.77, 0, 0.175, 1)',
@@ -23,12 +24,21 @@ export class CartItem extends Item {
 	constructor() {
 		super();
 
-		/** @type {string} */ this.thumbnailSrc = undefined;
-		/** @type {string} */ this.name = undefined;
-		/** @type {string} */ this.variant = undefined;
-		/** @type {number} */ this.quantity = undefined;
-		/** @type {number} */ this.pricePerItem = undefined;
-		/** @type {number} */ this.discountPercent = undefined;
+		/** @type {string} Must be unique, follow the convention of: "productID:variantID" */
+		this.id = undefined;
+		/** @type {string=Transparent Image} URL to the thumbnail, can be data url */
+		this.thumbnailSrc = 'data:image/octet-stream;base64,UklGRkAAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAIAAAAQAFZQOCAYAAAAMAEAnQEqAQABAA/A/iWkAANwAP7mtQAA';
+		/** @type {string} Display name of product, doesn't have to be unique */
+		this.name = undefined;
+		// todo: make null variant hide variant text
+		/** @type {string} Display variant of product, doesn't have to be unique */
+		this.variant = undefined;
+		/** @type {number=1} */
+		this.quantity = 1;
+		/** @type {number} */
+		this.pricePerItem = undefined;
+		/** @type {number=0} */
+		this.discountPercent = 0;
 	}
 }
 
@@ -73,8 +83,13 @@ export class CartElement extends Element {
 	constructor(renderTarget = document.getElementsByClassName('js-cart-render-target')[0]) {
 		super(renderTarget);
 
-		/** @type {Store} 			*/ 	this.itemsW = new Store([
+		/** @type {StoreArray} 			*/ 	this.itemsW = new StoreArray();
+		/** @type {boolean} 			*/ 	this.isOpen = false;
+		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
+
+		this.itemsW.push(...[
 			CartItem.from({
+				id: '1:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 1',
 				quantity: 1,
@@ -83,6 +98,7 @@ export class CartElement extends Element {
 				variant: 'A',
 			}),
 			CartItem.from({
+				id: '2:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 2',
 				quantity: 1,
@@ -91,6 +107,7 @@ export class CartElement extends Element {
 				variant: 'A',
 			}),
 			CartItem.from({
+				id: '3:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 3',
 				quantity: 1,
@@ -99,6 +116,7 @@ export class CartElement extends Element {
 				variant: 'A',
 			}),
 			CartItem.from({
+				id: '4:A',
 				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
 				name: 'Product 4',
 				quantity: 1,
@@ -106,9 +124,16 @@ export class CartElement extends Element {
 				discountPercent: 0,
 				variant: 'A',
 			}),
+			CartItem.from({
+				id: '4:A',
+				thumbnailSrc: '/shop/img/Rectangle-1920x1080-Placeholder.png',
+				name: 'Product 4',
+				quantity: 4,
+				pricePerItem: 10,
+				discountPercent: 0,
+				variant: 'A',
+			}),
 		]);
-		/** @type {boolean} 		*/ 	this.isOpen = false;
-		/** @type {Element | null} 	*/ 	this.lastClickSrc = null;
 
 		// add listener to all store buttons;
 		Array
@@ -126,7 +151,23 @@ export class CartElement extends Element {
 				});
 			});
 
-		this.itemsW.subscribe(() => {
+		this.itemsW.subscribe((items) => {
+			const idToIndexMap = new Map();
+
+			// merge items with the same ids
+			items.forEach((item, i) => {
+				const index = idToIndexMap.get(item.id);
+
+				if (index == null) {
+					idToIndexMap.set(item.id, i);
+
+					return;
+				}
+
+				items[index].quantity += item.quantity;
+				items.splice(index, 1);
+			});
+
 			this.render();
 		});
 	}
