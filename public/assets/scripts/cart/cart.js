@@ -121,7 +121,7 @@ export class CartElement extends Element {
 	onAttach() {
 		// add listener to all store buttons;
 		Array
-			.from(document.getElementsByClassName('js-cart-button'))
+			.from(document.getElementsByClassName('js-cart-open'))
 			.forEach((elem) => {
 				elem.addEventListener('click', () => {
 					this.isOpen = !this.isOpen;
