@@ -6,14 +6,40 @@ const https = require('https');
 const app = express();
 const port = 443;
 
-app.use('/assets', express.static('assets'));
+const ItemIDToURLMap = new Map();
+
+ItemIDToURLMap.set('product1', './downloads/3D MODELS MAIN.zip');
+ItemIDToURLMap.set('product2:A', './downloads/IDENT TEMPLATES.zip');
+ItemIDToURLMap.set('product3:A', './downloads/LOWERTHIRDS MAIN.zip');
+ItemIDToURLMap.set('product4:A', './downloads/PSALM PF.zip');
+
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true,
 }));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.get('/api/v1/download', (req, res) => {
+    const { i: itemId, o: orderId } = req.query;
+
+    if (!itemId || !orderId) {
+        res.send(400);
+
+        return;
+    }
+
+    // todo: verify paypal orderId
+
+    const url = ItemIDToURLMap.get(itemId);
+
+    if (url != null) {
+        console.log(`Serving "${orderId}": "${itemId}" ("${url}")`);
+        res.download(url);
+    }
 });
 
 app.post('/api/v1/email/contact', async (req, res) => {
@@ -53,5 +79,5 @@ var options = {
 };
 
 https.createServer(options, app).listen(port, () => {
-    console.log(`Moi app listening at http://localhost:${port} (https://fabidesing.net/)`);
+    console.log(`Listening at http://localhost:${port} (https://fabidesign.net/)`);
 });
