@@ -3,21 +3,7 @@ import { Item } from './core/blocks/item.js';
 import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
 import { Element } from './core/element.js';
-
-export const StyleVars = {
-	EASE_SLOW_SLOW: 'cubic-bezier(0.77, 0, 0.175, 1)',
-	EASE_SLOW_FAST: 'cubic-bezier(0.5, 0, 0.75, 0)',
-	EASE_FAST_SLOW: 'cubic-bezier(0.075, 0.82, 0.165, 1)',
-	PADDING: '48px',
-	SHAPE: 'polygon(0 0, 100% 0, 100% calc(100% - 72px), calc(100% - 72px) 100%, 0 100%)',
-	SHAPE_INVERTED: 'polygon(100% 100%, 100% calc(100% - 72px), calc(100% - 72px) 100%)',
-};
-export const StyleBreakpoints = {
-	MOBILE: 576,
-};
-export const StyleMediaQueries = {
-	MOBILE: `@media (max-width: ${StyleBreakpoints.MOBILE}px)`,
-};
+import { Vars, MediaQueries } from './core/style.js';
 
 export class CartItem extends Item {
 	constructor() {
@@ -289,15 +275,15 @@ export class CartElement extends Element {
 				outlineOffset: '50px',
 				opacity: 0,
 				transform: 'translateX(200px)',
-				transition: `transform .2s ${StyleVars.EASE_SLOW_FAST}, opacity .1s ${StyleVars.EASE_SLOW_FAST}, outline-offset .2s ${StyleVars.EASE_SLOW_FAST}`,
+				transition: `transform .2s ${Vars.EASE_SLOW_FAST}, opacity .1s ${Vars.EASE_SLOW_FAST}, outline-offset .2s ${Vars.EASE_SLOW_FAST}`,
 				'&.active': {
 					opacity: 1,
 					transform: 'translateX(0)',
 					outlineOffset: '10px',
-					transition: `transform .5s ${StyleVars.EASE_FAST_SLOW}, opacity .2s ${StyleVars.EASE_SLOW_SLOW}, outline-offset .7s ${StyleVars.EASE_FAST_SLOW}`,
+					transition: `transform .5s ${Vars.EASE_FAST_SLOW}, opacity .2s ${Vars.EASE_SLOW_SLOW}, outline-offset .7s ${Vars.EASE_FAST_SLOW}`,
 					pointerEvents: 'auto',
 				},
-				[StyleMediaQueries.MOBILE]: {
+				[MediaQueries.MOBILE]: {
 					width: '100vw',
 					height: '100%',
 					top: 0,
@@ -308,7 +294,7 @@ export class CartElement extends Element {
 					top: 0,
 					left: 0,
 					boxSizing: 'border-box',
-					padding: StyleVars.PADDING,
+					padding: Vars.PADDING,
 					width: '100%',
 					height: '100%',
 					background: 'linear-gradient(210deg, #cf000f 0%, #cf000f00 100%)',
@@ -318,9 +304,9 @@ export class CartElement extends Element {
 					position: 'absolute',
 					top: 0,
 					background: '#000f',
-					padding: StyleVars.PADDING,
+					padding: Vars.PADDING,
 					width: '100%',
-					height: `calc(50% - ${StyleVars.PADDING} * 4)`,
+					height: `calc(50% - ${Vars.PADDING} * 4)`,
 					zIndex: 1,
 					'& > .fa-shopping-cart': {
 						color: 'white',
@@ -336,28 +322,28 @@ export class CartElement extends Element {
 				'& > .content': {
 					width: '100%',
 					position: 'absolute',
-					top: `calc(50% - ${StyleVars.PADDING} * 4);`,
+					top: `calc(50% - ${Vars.PADDING} * 4);`,
 					// top: 0,
 					boxSizing: 'border-box',
 					'& > .shade': {
 						position: 'sticky',
 						top: 0,
 						width: '100%',
-						height: `calc(${StyleVars.PADDING} * 4)`,
+						height: `calc(${Vars.PADDING} * 4)`,
 						background: 'linear-gradient(180deg, #000c 0%, #000b 30%, #0003 80%, #0000 100%)',
 					},
 					'& > .title': {
 						position: 'sticky',
-						top: StyleVars.PADDING,
-						marginTop: `calc(-${StyleVars.PADDING} * 1)`,
-						marginLeft: StyleVars.PADDING,
+						top: Vars.PADDING,
+						marginTop: `calc(-${Vars.PADDING} * 1)`,
+						marginLeft: Vars.PADDING,
 						'& > h3': {
 							lineHeight: '1em',
 						},
 					},
 					'& > .summary': {
 						position: 'sticky',
-						marginTop: StyleVars.PADDING,
+						marginTop: Vars.PADDING,
 						top: 0,
 						height: 0,
 						float: 'right',
@@ -366,7 +352,7 @@ export class CartElement extends Element {
 							backdropFilter: 'invert(1)',
 							width: 'calc(16.6666667vw - 5px)',
 							minWidth: 240,
-							padding: StyleVars.PADDING,
+							padding: Vars.PADDING,
 							'& > .data': {
 								'& > p': {
 									margin: 0,
@@ -410,7 +396,7 @@ export class CartElement extends Element {
 					},
 					'& > .items': {
 						boxSizing: 'border-box',
-						padding: StyleVars.PADDING,
+						padding: Vars.PADDING,
 						maxWidth: '33.333333vw',
 						minWidth: 500,
 						'@media (max-width: 1480px)': {
@@ -428,7 +414,7 @@ export class CartElement extends Element {
 				zIndex: 1000,
 				opacity: 0,
 				transform: 'rotate(0deg) translateX(100px)',
-				transition: `transform .3s ease, opacity .2s ${StyleVars.EASE_FAST_SLOW}, color .2s ${StyleVars.EASE_FAST_SLOW}`,
+				transition: `transform .3s ease, opacity .2s ${Vars.EASE_FAST_SLOW}, color .2s ${Vars.EASE_FAST_SLOW}`,
 				'&.active': {
 					opacity: 1,
 					transform: 'rotate(0deg) translateX(0px)',
@@ -437,7 +423,7 @@ export class CartElement extends Element {
 					opacity: 1,
 					transform: 'rotate(180deg) translateX(0px)',
 				},
-				[StyleMediaQueries.MOBILE]: {
+				[MediaQueries.MOBILE]: {
 					top: 'calc((-10% / 2) - (1.75rem / 2))',
 					left: 48,
 				},
@@ -452,7 +438,7 @@ export class CartElement extends Element {
 				height: '100%',
 				width: '100%',
 				opacity: 0,
-				transition: `opacity 1s ${StyleVars.EASE_FAST_SLOW}`,
+				transition: `opacity 1s ${Vars.EASE_FAST_SLOW}`,
 				'&.active': {
 					opacity: 1,
 					pointerEvents: 'auto',
@@ -541,7 +527,7 @@ export class CartItemElement extends Element {
 					justifyItems: 'center',
 					color: 'white',
 					'& > .vlt-btn': {
-						borderRadius: StyleVars.PADDING,
+						borderRadius: Vars.PADDING,
 						zIndex: 'unset',
 						padding: 16,
 						background: 'transparent',
