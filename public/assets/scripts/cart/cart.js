@@ -99,6 +99,12 @@ export class CartElement extends Element {
 
 			localStorage.setItem('cart', JSON.stringify(items));
 		});
+
+		window.addEventListener('keyup', (event) => {
+			if (event.key === 'Escape') {
+				this.deactivate();
+			}
+		});
 	}
 
 	activate() {
@@ -211,14 +217,18 @@ export class CartElement extends Element {
 
 	/** @param {Element} srcElem */
 	onActivate(srcElem) {
-		srcElem.style.opacity = 0;
+		if (srcElem != null) {
+			srcElem.style.opacity = 0;
+		}
 
 		this.render();
 	}
 
 	/** @param {Element} srcElem */
 	onDeactivate(srcElem) {
-		srcElem.style.opacity = '';
+		if (srcElem != null) {
+			srcElem.style.opacity = '';
+		}
 
 		this.render();
 	}
