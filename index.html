@@ -9,13 +9,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link rel="icon" type="image/svg" href="assets/img/root/favicon.png">
 	<link rel="stylesheet" href="assets/css/framework/bootstrap.min.css">
-	<link rel="stylesheet" href="assets/css/framework/bootstrap.custom.css">
+	<!-- <link rel="stylesheet" href="assets/css/framework/bootstrap.custom.css"> -->
 	<link rel="stylesheet" href="assets/fonts/Gilroy/style.css">
 	<link rel="stylesheet" href="assets/fonts/LineIcons/Pro-Regular/font-css/LineIcons.css">
 	<link rel="stylesheet" href="assets/css/vlt-plugins.min.css">
 	<link rel="stylesheet" href="assets/css/vlt-main.min.css">
 	<link rel="stylesheet" href="assets/css/custom.css">
-	<link rel="stylesheet" href="assets/Fontawesome/css/all.css">
+	<!-- <link rel="stylesheet" href="assets/Fontawesome/css/all.css"> -->
 	<!-- To enable custom cursor, through external library uncomment this CDN and enable in index.js -->
 	<!-- <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css"> -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -46,8 +46,10 @@
 								</li>
 								<li data-menuanchor="Contact"><a href="#Contact">Contact</a>
 								</li>
-								<li data-menuanchor="shopping-cart" class="float-right"><a href="#"><i
-											class="fa fa-shopping-cart fa-lg cart-sizing" aria-hidden="true"></i></a>
+								<li data-menuanchor="Cart" class="float-right">
+									<a href="#">
+										<i class="fa fa-shopping-cart fa-lg cart-button js-cart-button" aria-hidden="true"></i>
+									</a>
 								</li>
 							</ul>
 
@@ -91,6 +93,11 @@
 				<li data-menuanchor="Shop"><a href="#Shop">Shop</a>
 				</li>
 				<li data-menuanchor="Contact"><a href="#Contact">Contact</a>
+				</li>
+				<li>
+					<a href="#">
+						<i class="fa fa-shopping-cart fa-sm cart-button js-cart-button" aria-hidden="true"></i>
+					</a>
 				</li>
 			</ul>
 		</nav>
@@ -479,9 +486,13 @@
 		</div>
 	</main>
 
+	<div style="display: contents;" class="js-cart-render-target"></div>
+	<div style="display: contents;" class="js-toasts-render-target"></div>
+
 	<!--JS Libraries-->
 	<script type="module" defer src="/assets/scripts/index.js"></script>
-	<script src="https://unpkg.com/kursor"></script>
+	<script type="module" defer src="/assets/scripts/cart/index.js"></script>
+	<!-- <script src="https://unpkg.com/kursor"></script> -->
 	<script src="/assets/vendors/jquery-3.5.1.min.js"></script>
 	<script src="/assets/scripts/vlt-plugins.min.js"></script>
 	<script src="/assets/scripts/vlt-helpers.js"></script>
@@ -489,6 +500,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.0/paper-core.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
 </body>
 
 </html>

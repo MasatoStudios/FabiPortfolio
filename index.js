@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/contactApi', async (req, res) => {
+app.post('/api/v1/email/contact', async (req, res) => {
     console.log(req.body);
     var message = `
 <strong>Name: </strong>${req.body.name}<br>
