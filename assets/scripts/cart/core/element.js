@@ -45,6 +45,11 @@ export class Element {
 		this.onDestroy();
 	}
 
+	/** @param {HTMLElement} parent */
+	attach(parent) {
+		parent.appendChild(this.renderTarget);
+	}
+
 	get template() {
 		return html``;
 	}
