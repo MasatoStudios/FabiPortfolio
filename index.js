@@ -8,10 +8,13 @@ const port = 443;
 
 const ItemIDToURLMap = new Map();
 
-ItemIDToURLMap.set('product1', './downloads/3D MODELS MAIN.zip');
-ItemIDToURLMap.set('product2:A', './downloads/IDENT TEMPLATES.zip');
-ItemIDToURLMap.set('product3:A', './downloads/LOWERTHIRDS MAIN.zip');
-ItemIDToURLMap.set('product4:A', './downloads/PSALM PF.zip');
+ItemIDToURLMap.set('3D_MODELS_MAIN', './downloads/3D MODELS MAIN.zip');
+ItemIDToURLMap.set('IDENT_TEMPLATES', './downloads/IDENT TEMPLATES.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN', './downloads/LOWERTHIRDS MAIN.zip');
+ItemIDToURLMap.set('PSALM_PF', './downloads/PSALM PF.zip');
+ItemIDToURLMap.set('SEBY_COMMISSION', './downloads/SEBY COMMISSION.zip');
+ItemIDToURLMap.set('TRIM_PATH', './downloads/TRIM PATH.zip');
+ItemIDToURLMap.set('XEN_COMMISSION', './downloads/XEN COMMISSION.zip');
 
 app.use(express.static('public'));
 app.use(express.json());
