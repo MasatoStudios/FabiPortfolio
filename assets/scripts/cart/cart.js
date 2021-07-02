@@ -212,6 +212,8 @@ export class CartElement extends Element {
 
 				this.render();
 			});
+
+			cartItemElement.render();
 		});
 
 		return html`
@@ -248,7 +250,7 @@ export class CartElement extends Element {
 						</div>
 					</div>
 					<div class='items'>
-						${cartItemElements.map((cartItemElement) => cartItemElement.template)}
+						${cartItemElements.map((cartItemElement) => cartItemElement.renderTarget)}
 					</div>
 				</div>
 			<div>
@@ -564,10 +566,5 @@ export class CartItemElement extends Element {
 				},
 			},
 		};
-	}
-
-	/** @private */
-	render() {
-		throw new Error('Unimplemented');
 	}
 }
