@@ -48,9 +48,11 @@
                                 </li>
                                 <li data-menuanchor="Contact"><a href="#Contact">Contact</a>
                                 </li>
-                                <li data-menuanchor="shopping-cart" class="float-right"><a href="#"><i
-                                            class="fa fa-shopping-cart fa-lg cart-sizing" aria-hidden="true"></i></a>
-                                </li>
+                                <li class="float-right">
+									<a href="#">
+										<i class="fa fa-shopping-cart fa-lg cart-button js-cart-open" aria-hidden="true"></i>
+									</a>
+								</li>
                             </ul>
 
                         </nav>
@@ -94,6 +96,11 @@
                 </li>
                 <li data-menuanchor="Contact"><a href="#Contact">Contact</a>
                 </li>
+                <li>
+					<a href="#">
+						<i class="fa fa-shopping-cart fa-sm cart-button js-cart-open" aria-hidden="true"></i>
+					</a>
+				</li>
             </ul>
         </nav>
         <div class="vlt-offcanvas-menu__footer">
@@ -156,7 +163,7 @@
                                 <div class="col-md-6">
                                     <div class="col-md-12">
                                         <div class="border-right border-danger">
-                                            <h1 class="p-2 title-size-mobile">Product 2 <span
+                                            <h1 id="title" class="p-2 title-size-mobile">Product 2 <span
                                                     class="has-accent-color">.</span></h1>
                                         </div>
                                         <div class="pt-4 p-4">
@@ -198,8 +205,8 @@
                                 </div>
 
                                 <div class="col-md-6 margin-top-extra">
-                                    <label for="Type">Type:</label>
-                                    <select name="Type" id="Type">
+                                    <label for="variant">Type:</label>
+                                    <select name="variant" id="variant">
                                         <option class="custom-option" value="1">1</option>
                                         <option class="custom-option" value="2">2</option>
                                         <option class="custom-option" value="3">3</option>
@@ -213,8 +220,17 @@
 
                                 <div class="col-md-12 d-flex flex-column button-added-margin center-align">
                                     <button
-                                        class="btn btn-danger btn-custom-radius-shop justify-content-center button-added-margin"
-                                        type="submit">Add to Cart</button>
+                                        type="button"
+                                        data-cart-add-id:="`3D_MODELS_MAIN:${$('#variant').value}`"
+                                        data-cart-add-thumbnail-src=""
+                                        data-cart-add-name:="$('#title').innerText"
+                                        data-cart-add-quantity:="$('#quantity').value"
+                                        data-cart-add-price-per-item="69"
+                                        data-cart-add-discount-per-item="0"
+                                        data-cart-add-variant:="$('#variant').value"
+                                        data-cart-add-type="downloadable"
+                                        class="btn btn-danger btn-custom-radius-shop justify-content-center button-added-margin js-cart-add"
+                                    ></button>Add to Cart</button>
                                 </div>
 
                                 </form>
@@ -224,11 +240,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
 
         <div class="vlt-fullpage-slider-progress-bar"><span></span></div>
 
@@ -246,8 +257,7 @@
     </main>
 
     <!--JS Libraries-->
-    <script type="module" defer src="/assets/scripts/index.js"></script>
-    <script src="https://unpkg.com/kursor"></script>
+    <script type="module" defer src="/assets/scripts/cart/index.js"></script>
     <script src="/assets/vendors/jquery-3.5.1.min.js"></script>
     <script src="/assets/scripts/vlt-plugins.min.js"></script>
     <script src="/assets/scripts/vlt-helpers.js"></script>
@@ -256,6 +266,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
 
     <script>
         var swiper = new Swiper(".mySwiper", {
