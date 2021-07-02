@@ -21,6 +21,7 @@ export class Element {
 		this.classes = classes;
 	}
 
+	onAttach() {}
 	onMount() {}
 	onDestroy() {}
 
@@ -48,6 +49,8 @@ export class Element {
 	/** @param {HTMLElement} parent */
 	attach(parent) {
 		parent.appendChild(this.renderTarget);
+
+		this.onAttach();
 	}
 
 	get template() {
