@@ -140,9 +140,9 @@ export class CartElement extends Element {
 
 	/** @override */
 	async onMount() {
-		this.mainElem = document.getElementsByClassName(this.classes.main)[0];
-		this.overlayElem = document.getElementsByClassName(this.classes.overlay)[0];
-		this.xElem = document.getElementsByClassName(this.classes.x)[0];
+		this.mainElem = this.renderTarget.getElementsByClassName(this.classes.main)[0];
+		this.overlayElem = this.renderTarget.getElementsByClassName(this.classes.overlay)[0];
+		this.xElem = this.renderTarget.getElementsByClassName(this.classes.x)[0];
 
 		// add deactivate hooks
 		this.overlayElem.addEventListener('click', () => this.deactivate());
