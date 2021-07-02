@@ -147,7 +147,7 @@ export class ToastItemElement extends Element {
 			this.activate();
 		});
 
-		if (this.item.time) {
+		if (this.item.time >= 0) {
 			this.scheduleDismiss(this.item.time);
 		}
 	}
