@@ -5,8 +5,13 @@ import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/j
 export class Element {
 	/** @param {Element} renderTarget */
 	constructor(renderTarget) {
-		/** @type {Element} */ 	this.renderTarget = renderTarget;
-		/** @type {boolean} */ 	this.isMounted = false;
+		/** @type {HTMLElement} */ 	this.renderTarget = renderTarget;
+		/** @type {boolean} 	*/ 	this.isMounted = false;
+
+		if (!(renderTarget instanceof HTMLElement)) {
+			this.renderTarget = document.createElement('div');
+			this.renderTarget.style.display = 'contents';
+		}
 
 		const { classes } = jss
 			.setup(jssPresetDefault())
