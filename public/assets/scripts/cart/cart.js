@@ -309,7 +309,7 @@ export class CartElement extends Element {
 				<div class='content'>
 					<div class='shade'></div>
 					<div class='title'>
-						<h3>${items.length} item${items.length === 1 ? '' : 's'}${isReceipt ? ' Purchased' : ''}.</h3>
+						<h3>${items.length} item${items.length !== 1 && 's'}${isReceipt && ' Purchased'}.</h3>
 						${isReceipt && items.some((item) => item.type === 'downloadable') && html`<p>Downloads should start at any moment.</p>`}
 					</div>
 					<div class='summary'>
@@ -319,10 +319,10 @@ export class CartElement extends Element {
 								<h6>$${total}</h6>
 								<br>
 								<p>Total Price Adjustments: </p>
-								<h6>${totalAdjustments < 0 ? '-' : ''}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
+								<h6>${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))}</h6>
 							</div>
 							<div style='height: 48px'></div>
-							${isReceipt ? '' : html`<div class='${classes.paypal}'></div>`}
+							${!isReceipt && html`<div class='${classes.paypal}'></div>`}
 							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
 								Continue Shopping
 							</a>
