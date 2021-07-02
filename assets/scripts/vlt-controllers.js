@@ -65,7 +65,7 @@
 				thisForm.validate({
 					errorClass: 'error',
 					submitHandler: function () {
-						axios.post('/contactApi', {
+						axios.post('//api/v1/email/contact', {
 							name: document.getElementById("name").value,
 							email: document.getElementById("email").value,
 							message: document.getElementById("message").value,
