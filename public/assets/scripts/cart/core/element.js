@@ -28,8 +28,8 @@ export class Element {
 	}
 
 	/**
-	 * @param {string} eventString 
-	 * @param {ElementEventCallback} callback 
+	 * @param {string} eventString
+	 * @param {ElementEventCallback} callback
 	 */
 	on(eventString, callback) {
 		let callbacks = this.eventStringToCallbacksMap.get(eventString);
@@ -42,9 +42,9 @@ export class Element {
 		callbacks.push(callback);
 	}
 
-		/**
-	 * @param {string} eventString 
-	 * @param {ElementEventCallback} callback 
+	/**
+	 * @param {string} eventString
+	 * @param {ElementEventCallback} callback
 	 */
 	once(eventString, callback) {
 		this.on(eventString, (event) => {
@@ -55,12 +55,12 @@ export class Element {
 	}
 
 	/**
-	 * @param {string} eventString 
-	 * @param {ElementEventCallback} callback 
+	 * @param {string} eventString
+	 * @param {ElementEventCallback} callback
 	 */
 	off(eventString, callback) {
 		const callbacks = this.eventStringToCallbacksMap.get(eventString);
-		
+
 		if (callbacks == null) {
 			return;
 		}
@@ -75,12 +75,12 @@ export class Element {
 	}
 
 	/**
-	 * @param {string} eventString 
-	 * @param {ElementEventData} data 
+	 * @param {string} eventString
+	 * @param {ElementEventData} data
 	 */
 	dispatch(eventString, data = {}) {
 		const callbacks = this.eventStringToCallbacksMap.get(eventString);
-		
+
 		if (callbacks == null) {
 			return;
 		}
@@ -95,7 +95,7 @@ export class Element {
 	onDestroy() {}
 
 	render() {
-		const template = this.template;
+		const { template } = this;
 
 		template.values = template.values.map((value) => !value && typeof value !== 'number' ? '' : value);
 
