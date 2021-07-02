@@ -25,6 +25,14 @@ export class CartItem extends Item {
 		/** @type {number=0} */
 		this.discountPercent = 0;
 	}
+
+	get priceTotalUnadjusted() {
+		return this.pricePerItem * this.quantity;
+	}
+
+	get priceTotal() {
+		return this.priceTotalUnadjusted - (this.priceTotalUnadjusted * this.discountPercent);
+	}
 }
 
 export class CartElement extends Element {
@@ -147,26 +155,34 @@ export class CartElement extends Element {
 			});
 		}
 
+		const { value: items } = this.itemsW;
+		const idPrefix = `${Date.now()}:${Math.floor(Math.random() * 1000)}`;
+
 		window.paypal.Buttons({
 			style: {
 				shape: 'rect',
 				color: 'gold',
 				layout: 'vertical',
 				label: 'paypal',
-
 			},
 
 			createOrder(data, actions) {
 				return actions.order.create({
-					// eslint-disable-next-line camelcase
-					purchase_units: [{ description: 'aaaaaaaaa', amount: { currency_code: 'USD', value: 1 } }],
+					/* eslint-disable camelcase */
+					purchase_units: items.map((/** @type {CartItem} */ item) => ({
+						reference_id: `${idPrefix}:${item.id}`,
+						description: `${item.name} (x${item.quantity})`,
+						amount: {
+							currency_code: 'USD',
+							value: item.priceTotal,
+						},
+					})),
+					/* eslint-enable camelcase */
 				});
 			},
 
-			onApprove(data, actions) {
-				return actions.order.capture().then((details) => {
-					alert('Transaction completed by ' + details.payer.name.given_name + '!');
-				});
+			async onApprove(data, actions) {
+				const details = await actions.order.capture();
 			},
 
 			onError(err) {
@@ -194,9 +210,9 @@ export class CartElement extends Element {
 		const { classes, itemsW } = this;
 		const { value: items } = itemsW;
 
-		/** @type {number} 				*/	const totalRaw = items.reduce((prev, curr) => prev + (curr.pricePerItem * curr.quantity), 0);
-		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + (curr.pricePerItem * curr.quantity * ((100 - curr.discountPercent) / 100)), 0);
-		/** @type {number} 				*/	const totalAdjustments = total - totalRaw;
+		/** @type {number} 				*/	const totalUnadjusted = items.reduce((prev, curr) => prev + curr.priceTotalUnadjusted, 0);
+		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + curr.priceTotal, 0);
+		/** @type {number} 				*/	const totalAdjustments = total - totalUnadjusted;
 		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(null, item));
 
 		cartItemElements.forEach((cartItemElement) => {
