@@ -175,7 +175,7 @@ export class CartElement extends Element {
 			});
 	}
 
-	onApprove(data, details) {
+	onApprove(data) {
 		this.itemsW.value.forEach(async (/** @type {CartItem} */ item, i) => {
 			if (item.type === 'downloadable') {
 				await new Promise((resolve) => {
@@ -322,15 +322,15 @@ export class CartElement extends Element {
 						<div class='wrapper'>
 							<div class='data'>
 								<p>Total: </p>
-								<h6>$${totalUnadjusted}${!!totalAdjustments && ` (${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))})`}</h6>
-								${!!totalAdjustments && html`
+								<h6>$${totalUnadjusted}${Boolean(totalAdjustments) && ` (${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))})`}</h6>
+								${Boolean(totalAdjustments) && html`
 									<br>
 									<p>Adjusted Total: </p>
 									<h6>$${total}</h6>
 								`}
 							</div>
 							<div style='height: 48px'></div>
-							${!isReceipt && html`<div class='${classes.paypal}'></div>`}
+							${html`<div class='${classes.paypal}${!isReceipt && total > 0 && ' active'}'></div>`}
 							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
 								Continue Shopping
 							</a>
@@ -531,7 +531,12 @@ export class CartElement extends Element {
 					pointerEvents: 'auto',
 				},
 			},
-			paypal: {},
+			paypal: {
+				display: 'none',
+				'&.active': {
+					display: 'unset',
+				},
+			},
 		};
 	}
 }
