@@ -1,6 +1,7 @@
 import { html, render as litRender } from 'https://unpkg.com/lit-html@1.4.1/lit-html.js';
 import jss from 'https://unpkg.com/jss@10.7.1/dist/jss.bundle.js';
 import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/jss-preset-default.bundle.js';
+import { WalkUtility } from '../resources/utilities/walk.utility.js';
 
 export class Element {
 	/**
@@ -97,7 +98,19 @@ export class Element {
 	render() {
 		const { template } = this;
 
-		template.values = template.values.map((value) => !value && typeof value !== 'number' ? '' : value);
+		WalkUtility.walk(template.values, (value, key, parent) => {
+			if (!value && typeof value !== 'number' && typeof value !== 'string') {
+				try {
+					parent[key] = '';
+				} catch (err) {
+					if (err instanceof TypeError) {
+						Object.defineProperty(parent, key, {
+							value: '',
+						});
+					}
+				}
+			}
+		});
 
 		litRender(
 			template,
