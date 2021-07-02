@@ -32,7 +32,10 @@ export class CartItem extends Item {
 	}
 
 	get priceTotal() {
-		return (this.priceTotalUnadjusted - (this.priceTotalUnadjusted * (this.discountPercent / 100))).toFixed(2);
+		return Number(
+			(this.priceTotalUnadjusted - (this.priceTotalUnadjusted * (this.discountPercent / 100)))
+				.toFixed(2),
+		);
 	}
 }
 
