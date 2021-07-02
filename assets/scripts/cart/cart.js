@@ -4,8 +4,8 @@ import { StoreArray } from './core/store/extended/array.js';
 import { Store } from './core/store.js';
 import { Element } from './core/element.js';
 import { Vars, MediaQueries } from './core/style.js';
-import { getToast } from './index.js';
 import { ToastItem } from './toast.js';
+import { toast } from './index.js';
 
 export class CartItem extends Item {
 	constructor() {
@@ -93,22 +93,6 @@ export class CartElement extends Element {
 			}),
 		]);
 
-		// add listener to all store buttons;
-		Array
-			.from(document.getElementsByClassName('js-cart-button'))
-			.forEach((elem) => {
-				elem.addEventListener('click', () => {
-					this.isOpen = !this.isOpen;
-					this.lastClickSrc = elem;
-
-					if (this.isOpen) {
-						this.onActivate(elem);
-					} else {
-						this.onDeactivate(elem);
-					}
-				});
-			});
-
 		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
 
@@ -138,6 +122,25 @@ export class CartElement extends Element {
 	deactivate() {
 		this.isOpen = false;
 		this.onDeactivate(this.lastClickSrc);
+	}
+
+	/** @override */
+	onAttach() {
+		// add listener to all store buttons;
+		Array
+			.from(document.getElementsByClassName('js-cart-button'))
+			.forEach((elem) => {
+				elem.addEventListener('click', () => {
+					this.isOpen = !this.isOpen;
+					this.lastClickSrc = elem;
+
+					if (this.isOpen) {
+						this.onActivate(elem);
+					} else {
+						this.onDeactivate(elem);
+					}
+				});
+			});
 	}
 
 	/** @override */
@@ -188,7 +191,7 @@ export class CartElement extends Element {
 			},
 
 			onError(err) {
-				getToast().itemsW.push(ToastItem.from({
+				toast.itemsW.push(ToastItem.from({
 					type: 'error',
 					text: err.message,
 					time: 10000,
