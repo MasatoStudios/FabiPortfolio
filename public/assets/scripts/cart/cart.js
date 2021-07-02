@@ -589,8 +589,7 @@ export class CartItemElement extends Element {
 				display: 'grid',
 				gridTemplateAreas: `'thumbnail name price quantity'
 									'thumbnail variant _ quantity'`,
-				gridTemplateColumns: '48px auto repeat(2, min-content)',
-				gridTemplateRows: 'repeat(2, min-content)',
+				gridTemplateColumns: '48px auto 48px min-content',
 				columnGap: 48,
 				marginBottom: 48,
 				'& > .thumbnail': {
