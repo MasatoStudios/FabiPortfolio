@@ -223,14 +223,14 @@
                                         type="button"
                                         data-cart-add-id:="`3D_MODELS_MAIN:${$('#variant').value}`"
                                         data-cart-add-thumbnail-src=""
-                                        data-cart-add-name:="$('#title').innerText"
+                                        data-cart-add-name:="$('#title').innerText.trim().replace(/ *\.$/, '')"
                                         data-cart-add-quantity:="$('#quantity').value"
                                         data-cart-add-price-per-item="69"
                                         data-cart-add-discount-per-item="0"
                                         data-cart-add-variant:="$('#variant').value"
                                         data-cart-add-type="downloadable"
                                         class="btn btn-danger btn-custom-radius-shop justify-content-center button-added-margin js-cart-add"
-                                    ></button>Add to Cart</button>
+                                    >Add to Cart</button>
                                 </div>
 
                                 </form>
