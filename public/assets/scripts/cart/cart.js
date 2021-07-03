@@ -148,7 +148,7 @@ export class CartElement extends Element {
 	}
 
 	hydrate() {
-		const items = this.getLocalStorage();
+		const items = this.getLocalStorage() || [];
 
 		this.itemsW.value.length = 0;
 
