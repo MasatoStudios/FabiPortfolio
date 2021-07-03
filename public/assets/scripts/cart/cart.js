@@ -124,7 +124,7 @@ export class CartElement extends Element {
 				lastItemsLength = items.length;
 			}
 
-			localStorage.setItem('cart', JSON.stringify(items));
+			this.commit(items);
 		});
 
 		window.addEventListener('keyup', (event) => {
@@ -137,6 +137,10 @@ export class CartElement extends Element {
 			this.hydrate();
 			this.render();
 		});
+	}
+
+	commit(items) {
+		localStorage.setItem('cart', JSON.stringify(items));
 	}
 
 	hydrate() {
@@ -241,6 +245,7 @@ export class CartElement extends Element {
 		this.state = 'cart';
 
 		this.itemsW.value.splice(0, this.itemsW.length);
+		this.commit();
 	}
 
 	/** @override */
