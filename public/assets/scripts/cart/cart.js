@@ -81,11 +81,7 @@ export class CartElement extends Element {
 		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
 		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
 
-		try {
-			JSON.parse(localStorage.getItem('cart')).forEach((item) => {
-				this.itemsW.value.push(CartItem.from(item));
-			});
-		} catch (_) {}
+		this.hydrate();
 
 		let lastItemsLength = this.itemsW.value.length;
 		this.itemsW.subscribeLazy((items) => {
@@ -136,6 +132,27 @@ export class CartElement extends Element {
 				this.deactivate();
 			}
 		});
+
+		window.addEventListener('focus', () => {
+			this.hydrate();
+			this.render();
+		});
+	}
+
+	hydrate() {
+		try {
+			const items = JSON.parse(localStorage.getItem('cart'));
+
+			if (!Array.isArray(items)) {
+				return;
+			}
+
+			this.itemsW.value.length = 0;
+
+			items.forEach((item) => {
+				this.itemsW.value.push(CartItem.from(item));
+			});
+		} catch (_) {}
 	}
 
 	activate() {
@@ -336,6 +353,9 @@ export class CartElement extends Element {
 			});
 
 			cartItemElement.render();
+
+			cartItemElement.on('increment', () => this.itemsW.trigger());
+			cartItemElement.on('decrement', () => this.itemsW.trigger());
 		});
 
 		return html`
@@ -592,20 +612,24 @@ export class CartItemElement extends Element {
 		/** @type {boolean} */ 	this.isEditable = isEditable;
 	}
 
-	onDecrement() {
+	decrement() {
 		this.itemW.update((item) => {
 			--item.quantity;
 
 			return item;
 		});
+
+		this.dispatch('decrement');
 	}
 
-	onIncrement() {
+	increment() {
 		this.itemW.update((item) => {
 			++item.quantity;
 
 			return item;
 		});
+
+		this.dispatch('increment');
 	}
 
 	/** @override */
@@ -620,9 +644,9 @@ export class CartItemElement extends Element {
 				${item.variant && html`<p class='variant'><b>${item.variant}</b></p>`}
 				<p class='price'>$${item.priceTotalUnadjusted.toFixed(2)}${item.priceTotalAdjustment ? ` (${item.priceTotalAdjustment > 0 ? '' : '-'}$${Math.abs(item.priceTotalAdjustment.toFixed(2))})` : ''}</p>
 				<div class='quantity'>
-					${this.isEditable && html`<a @click=${() => this.onDecrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>`}
+					${this.isEditable && html`<a @click=${() => this.decrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>${item.quantity > 0 ? '-' : '×'}</a>`}
 					<p>${item.quantity}</p>
-					${this.isEditable && html`<a @click=${() => this.onIncrement()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>+</a>`}
+					${this.isEditable && html`<a @click=${() => this.increment()} class='vlt-btn vlt-btn--primary vlt-btn--md' href='#'>+</a>`}
 				</div>
 			</div>
 		`;
