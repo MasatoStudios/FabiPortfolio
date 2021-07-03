@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm i && node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --trace-warnings --unhandled-rejections=strict index.js"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,13 @@
   },
   "homepage": "https://github.com/IamKeyan/Test#readme",
   "dependencies": {
+    "btoa": "^1.2.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "nodemailer": "^6.6.1"
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
+    "nodemailer": "^6.6.1",
+    "simple-json-db": "^1.2.3"
   },
   "devDependencies": {
     "eslint": "^7.29.0",
