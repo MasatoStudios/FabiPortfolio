@@ -10,7 +10,18 @@ const ItemIDToURLMap = new Map();
 
 ItemIDToURLMap.set('3D_MODELS_MAIN', './downloads/3D MODELS MAIN.zip');
 ItemIDToURLMap.set('IDENT_TEMPLATES', './downloads/IDENT TEMPLATES.zip');
-ItemIDToURLMap.set('LOWERTHIRDS_MAIN', './downloads/LOWERTHIRDS MAIN.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:*', './downloads/LOWERTHIRDS MAIN.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:DISCORD', './downloads/LOWERTHIRDS MAIN/DISCORD LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:INSTAGRAM', './downloads/LOWERTHIRDS MAIN/INSTAGRAM LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:LIKE', './downloads/LOWERTHIRDS MAIN/LIKE THE VIDEO LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:GENERIC', './downloads/LOWERTHIRDS MAIN/LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:PATREON', './downloads/LOWERTHIRDS MAIN/PATREON LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:REDDIT', './downloads/LOWERTHIRDS MAIN/REDDIT LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:SPOTIFY', './downloads/LOWERTHIRDS MAIN/SPOTIFY LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:TIKTOK', './downloads/LOWERTHIRDS MAIN/TIKTOK LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:TWITCH', './downloads/LOWERTHIRDS MAIN/TWITCH LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:TWITTER', './downloads/LOWERTHIRDS MAIN/TWITTER LOWERTHIRD.zip');
+ItemIDToURLMap.set('LOWERTHIRDS_MAIN:YOUTUBE', './downloads/LOWERTHIRDS MAIN/YOUTUBE LOWERTHIRD.zip');
 ItemIDToURLMap.set('PSALM_PF', './downloads/PSALM PF.zip');
 ItemIDToURLMap.set('SEBY_COMMISSION', './downloads/SEBY COMMISSION.zip');
 ItemIDToURLMap.set('TRIM_PATH', './downloads/TRIM PATH.zip');
@@ -30,18 +41,20 @@ app.get('/api/v1/download', (req, res) => {
     const { i: itemId, o: orderId } = req.query;
 
     if (!itemId || !orderId) {
-        res.send(400);
+        res.sendStatus(400);
 
         return;
     }
 
     // todo: verify paypal orderId
 
-    const url = ItemIDToURLMap.get(itemId);
+    const url = ItemIDToURLMap.get(decodeURIComponent(itemId));
 
     if (url != null) {
         console.log(`Serving "${orderId}": "${itemId}" ("${url}")`);
         res.download(url);
+    } else {
+        res.sendStatus(404);
     }
 });
 
