@@ -141,7 +141,13 @@ export class CartElement extends Element {
 
 	getLocalStorage() {
 		try {
-			return JSON.parse(localStorage.getItem('cart'));
+			const items = JSON.parse(localStorage.getItem('cart'));
+
+			if (!Array.isArray(items)) {
+				return [];
+			}
+
+			return items;
 		} catch (_) {
 			return [];
 		}
