@@ -83,9 +83,9 @@ export class CartElement extends Element {
 
 		this.hydrate();
 
-		let lastItemsLength = this.itemsW.value.length;
 		this.itemsW.subscribeLazy((items) => {
 			const idToIndexMap = new Map();
+			const lastItemsLength = this.getLocalStorage().length;
 			let isFromExternalSource;
 
 			// merge items with the same ids
@@ -120,11 +120,7 @@ export class CartElement extends Element {
 				}));
 			}
 
-			if (items.length !== lastItemsLength) {
-				lastItemsLength = items.length;
-			}
-
-			this.commit(items);
+			this.setLocalStorage(items);
 		});
 
 		window.addEventListener('keyup', (event) => {
@@ -139,24 +135,26 @@ export class CartElement extends Element {
 		});
 	}
 
-	commit(items) {
+	setLocalStorage(items) {
 		localStorage.setItem('cart', JSON.stringify(items));
 	}
 
-	hydrate() {
+	getLocalStorage() {
 		try {
-			const items = JSON.parse(localStorage.getItem('cart'));
+			return JSON.parse(localStorage.getItem('cart'));
+		} catch (_) {
+			return [];
+		}
+	}
 
-			if (!Array.isArray(items)) {
-				return;
-			}
+	hydrate() {
+		const items = this.getLocalStorage();
 
-			this.itemsW.value.length = 0;
+		this.itemsW.value.length = 0;
 
-			items.forEach((item) => {
-				this.itemsW.value.push(CartItem.from(item));
-			});
-		} catch (_) {}
+		items.forEach((item) => {
+			this.itemsW.value.push(CartItem.from(item));
+		});
 	}
 
 	activate() {
@@ -245,7 +243,7 @@ export class CartElement extends Element {
 		this.state = 'cart';
 
 		this.itemsW.value.splice(0, this.itemsW.length);
-		this.commit();
+		this.setLocalStorage(this.itemsW.value);
 	}
 
 	/** @override */
