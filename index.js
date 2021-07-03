@@ -17,8 +17,8 @@ const PAYPAL_ORDER_API = 'https://api-m.paypal.com/v2/checkout/orders/';
 
 dotenv.config();
 
-const productsDb = new JSONdb('./db/products.json', { asyncWrite: true });
-const ordersDb = new JSONdb('./db/orders.json', { asyncWrite: true });
+const productsDb = new JSONdb('./db/products.v1.json', { asyncWrite: true });
+const ordersDb = new JSONdb('./db/orders.v1.json', { asyncWrite: true });
 const paymentIdToTransactionsMap = new Map();
 const paymentIdToItemIdsMap = new Map();
 let auth;
