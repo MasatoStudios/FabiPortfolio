@@ -145,6 +145,7 @@
                                             <div class="swiper-slide"><iframe id="myVideo" src="https://player.vimeo.com/video/570606450?title=0&byline=0&portrait=0" frameborder="0"
                                                 allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
                                             <div class="swiper-slide"><img
+                                                    id="thumbnail"
                                                     src="/shop/Pages/previews/trim-paths/trimpath-preview.jpg"
                                                     alt="placeholder"></div>
                                             
@@ -194,22 +195,22 @@
                                 <div class="col-md-6 margin-top-extra">
                                     <label for="variant">Type:</label>
                                     <select name="variant" id="variant">
-                                        <option data-cart-eval-variant-id="ONE" class="custom-option" value="5">Complete Bundle</option>
-                                        <option data-cart-eval-variant-id="TWO" class="custom-option" value="2.50">Provicali</option>
-                                        <option data-cart-eval-variant-id="THREE" class="custom-option" value="2.50">Gotham</option>
+                                        <option data-cart-eval-variant-id="*" class="custom-option" value="5">Complete Bundle</option>
+                                        <option data-cart-eval-variant-id="PROVICALI" class="custom-option" value="2.50">Provicali</option>
+                                        <option data-cart-eval-variant-id="GOTHAM" class="custom-option" value="2.50">Gotham</option>
                                     </select>
                                 </div>
 
                                 <div class="col-md-12 d-flex flex-column button-added-margin center-align">
                                     <button
                                         type="button"
-                                        data-cart-add-id:="`3D_MODELS_MAIN:${$('#variant option:checked').dataset.cartEvalVariantId}`"
-                                        data-cart-add-thumbnail-src=""
+                                        data-cart-add-id:="`TRIM_PATH:${$('#variant option:checked').dataset.cartEvalVariantId}`"
+                                        data-cart-add-thumbnail-src:="$('#thumbnail').src"
                                         data-cart-add-name:="$('#title').innerText.trim().replace(/ *\.$/, '')"
                                         data-cart-add-quantity:="$('#quantity').value"
-                                        data-cart-add-price-per-item="69"
+                                        data-cart-add-price-per-item:="Number($('#variant').value)"
                                         data-cart-add-discount-per-item="0"
-                                        data-cart-add-variant:="$('#variant').value"
+                                        data-cart-add-variant:="$('#variant option:checked').innerText"
                                         data-cart-add-type="downloadable"
                                         class="btn btn-danger btn-custom-radius-shop justify-content-center button-added-margin js-cart-add"
                                     >Add to Cart</button>
