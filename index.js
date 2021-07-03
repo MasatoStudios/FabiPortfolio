@@ -46,7 +46,7 @@ app.post('/api/v1/payment/new', async (req, res) => {
 		return;
 	}
 
-	const total = json.items.reduce((prev, curr) => prev + productsDb.get(curr).price, 0);
+	const total = json.items.reduce((prev, curr) => prev + (productsDb.get(curr.id).price * curr.quantity), 0);
 	const purchase_units = [{
 		reference_id: `${Date.now()}:${Math.floor(Math.random() * 1000)}`,
 		amount: {

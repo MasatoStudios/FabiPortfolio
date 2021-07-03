@@ -294,9 +294,11 @@ export class CartElement extends Element {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
-							items: this.itemsW.value.map(
-								(/** @type {CartItem} */ item) => item.id,
-							),
+							items: this.itemsW.value
+								.filter((item) => item.quantity > 0)
+								.map(
+									(/** @type {CartItem} */ item) => ({ id: item.id, quantity: item.quantity }),
+								),
 						}),
 					})
 				).json()
