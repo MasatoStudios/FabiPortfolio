@@ -207,21 +207,21 @@
                                 <div class="col-md-6 margin-top-extra">
                                     <label for="variant">Type:</label>
                                     <select name="variant" id="variant">
-                                        <option class="custom-option" value="1">1</option>
-                                        <option class="custom-option" value="2">2</option>
-                                        <option class="custom-option" value="3">3</option>
-                                        <option class="custom-option" value="4">4</option>
-                                        <option class="custom-option" value="5">5</option>
-                                        <option class="custom-option" value="6">6</option>
-                                        <option class="custom-option" value="7">7</option>
-                                        <option class="custom-option" value="8">8</option>
+                                        <option data-cart-eval-variant-id="ONE" class="custom-option" value="1">1</option>
+                                        <option data-cart-eval-variant-id="TWO" class="custom-option" value="2">2</option>
+                                        <option data-cart-eval-variant-id="THREE" class="custom-option" value="3">3</option>
+                                        <option data-cart-eval-variant-id="FOUR" class="custom-option" value="4">4</option>
+                                        <option data-cart-eval-variant-id="FIVE" class="custom-option" value="5">5</option>
+                                        <option data-cart-eval-variant-id="SIX" class="custom-option" value="6">6</option>
+                                        <option data-cart-eval-variant-id="SEVEN" class="custom-option" value="7">7</option>
+                                        <option data-cart-eval-variant-id="EIGHT" class="custom-option" value="8">8</option>
                                     </select>
                                 </div>
 
                                 <div class="col-md-12 d-flex flex-column button-added-margin center-align">
                                     <button
                                         type="button"
-                                        data-cart-add-id:="`3D_MODELS_MAIN:${$('#variant').value}`"
+                                        data-cart-add-id:="`3D_MODELS_MAIN:${$('#variant option:checked').dataset.cartEvalVariantId}`"
                                         data-cart-add-thumbnail-src=""
                                         data-cart-add-name:="$('#title').innerText.trim().replace(/ *\.$/, '')"
                                         data-cart-add-quantity:="$('#quantity').value"
