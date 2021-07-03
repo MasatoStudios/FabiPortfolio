@@ -271,8 +271,6 @@ export class CartElement extends Element {
 			});
 		}
 
-		const idPrefix = `${Date.now()}:${Math.floor(Math.random() * 1000)}`;
-
 		window.paypal.Buttons({
 			style: {
 				shape: 'rect',
@@ -283,14 +281,14 @@ export class CartElement extends Element {
 
 			createOrder: (data, actions) => actions.order.create({
 				/* eslint-disable camelcase */
-				purchase_units: this.itemsW.value.map((/** @type {CartItem} */ item) => ({
-					reference_id: `${idPrefix}:${item.id}`,
-					description: `${item.name} (x${item.quantity})`,
+				purchase_units: [{
+					reference_id: `${Date.now()}:${Math.floor(Math.random() * 1000)}`,
+					description: '',
 					amount: {
 						currency_code: 'USD',
-						value: item.priceTotal,
+						value: this.itemsW.reduce((prev, curr) => prev + curr.priceTotal, 0),
 					},
-				})),
+				}],
 				/* eslint-enable camelcase */
 			}),
 
