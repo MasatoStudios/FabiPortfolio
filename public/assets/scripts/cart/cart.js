@@ -635,8 +635,8 @@ export class CartItemElement extends Element {
 				display: 'grid',
 				gridTemplateAreas: `'thumbnail name price quantity'
 									'thumbnail variant _ quantity'`,
-				gridTemplateColumns: '48px auto 48px min-content',
-				columnGap: 48,
+				gridTemplateColumns: '48px 1fr 52px min-content',
+				columnGap: '3vw',
 				marginBottom: 48,
 				'& > .thumbnail': {
 					width: 48,
@@ -678,7 +678,7 @@ export class CartItemElement extends Element {
 					},
 				},
 				'& > .variant': {
-					// lineHeight: '0.5em',
+					lineHeight: '1em',
 					gridArea: 'variant',
 					'@media (max-width: 500px)': {
 						marginBottom: '8px',
@@ -686,6 +686,9 @@ export class CartItemElement extends Element {
 				},
 				'& p, & h6': {
 					margin: 0,
+					hyphens: 'auto',
+					minWidth: 0,
+					// wordBreak: 'break-all',
 				},
 				'@media (max-width: 500px)': {
 					gridTemplateAreas: `'thumbnail name price'
