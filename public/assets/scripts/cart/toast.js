@@ -88,6 +88,7 @@ export class ToastElement extends Element {
 				right: 0,
 				bottom: 0,
 				zIndex: 1000,
+				pointerEvents: 'none',
 				// padding: Vars.PADDING,
 				width: '100%',
 				minWidth: Breakpoints.MOBILE,
