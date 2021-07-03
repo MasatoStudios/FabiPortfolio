@@ -76,8 +76,6 @@ app.post('/api/v1/payment/new', async (req, res) => {
 			throw new Error();
 		}
 
-		console.log(result);
-
 		if (!response.ok
 			|| !result.id) {
 			console.error(response.status);
