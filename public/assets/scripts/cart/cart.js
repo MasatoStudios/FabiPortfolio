@@ -640,6 +640,10 @@ export class CartItemElement extends Element {
 					color: 'white',
 					gridArea: 'price',
 					lineHeight: '1.1em',
+					wordBreak: 'break-word',
+					'@media (max-width: 500px)': {
+						wordBreak: 'unset',
+					},
 				},
 				'&  > .quantity': {
 					gridArea: 'quantity',
@@ -679,6 +683,7 @@ export class CartItemElement extends Element {
 										'thumbnail quantity _'`,
 					gridTemplateColumns: '48px auto min-content',
 					gridTemplateRows: 'repeat(3, min-content)',
+					columnGap: 16,
 				},
 			},
 		};
