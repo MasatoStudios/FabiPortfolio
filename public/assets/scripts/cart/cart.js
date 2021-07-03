@@ -154,7 +154,9 @@ export class CartElement extends Element {
 		Array
 			.from(document.getElementsByClassName('js-cart-open'))
 			.forEach((elem) => {
-				elem.addEventListener('click', () => {
+				elem.addEventListener('click', (event) => {
+					event.preventDefault();
+
 					this.isOpen = !this.isOpen;
 					this.lastClickSrc = elem;
 
@@ -169,7 +171,9 @@ export class CartElement extends Element {
 		Array
 			.from(document.getElementsByClassName('js-cart-add'))
 			.forEach((elem) => {
-				elem.addEventListener('click', () => {
+				elem.addEventListener('click', (event) => {
+					event.preventDefault();
+
 					const cartItemOptions = {
 						source: 'external',
 					};
@@ -229,8 +233,14 @@ export class CartElement extends Element {
 		this.xElem = this.renderTarget.getElementsByClassName(this.classes.x)[0];
 
 		// add deactivate hooks
-		this.overlayElem.addEventListener('click', () => this.deactivate());
-		this.xElem.addEventListener('click', () => this.deactivate());
+		this.overlayElem.addEventListener('click', (event) => {
+			event.preventDefault();
+			this.deactivate();
+		});
+		this.xElem.addEventListener('click', (event) => {
+			event.preventDefault();
+			this.deactivate();
+		});
 
 		if (window.paypal == null) {
 			// wait for window.paypal to appear
