@@ -1,3 +1,4 @@
 **/*.js
 !public/assets/scripts/cart.js
 !public/assets/scripts/cart/**/*.js
+!index.js
