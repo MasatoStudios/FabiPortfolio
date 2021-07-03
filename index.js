@@ -1,113 +1,255 @@
+/* eslint-disable camelcase */
+const JSONdb = require('simple-json-db');
+const dotenv = require('dotenv');
+const btoa = require('btoa');
 const express = require('express');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const https = require('https');
+const fetch = require('node-fetch');
+const morgan = require('morgan');
 const app = express();
-const port = 443;
 
-const ItemIDToURLMap = new Map();
+const PORT = 443;
+const PAYPAL_OAUTH_API = 'https://api-m.paypal.com/v1/oauth2/token/';
+const PAYPAL_ORDER_API = 'https://api-m.paypal.com/v2/checkout/orders/';
 
-ItemIDToURLMap.set('IDENT_TEMPLATES:*', './downloads/IDENT TEMPLATES/IDENT TEMPLATES.zip');
-ItemIDToURLMap.set('IDENT_TEMPLATES:1', './downloads/IDENT TEMPLATES/TEMPLATE 1.zip');
-ItemIDToURLMap.set('IDENT_TEMPLATES:2', './downloads/IDENT TEMPLATES/TEMPLATE 2.zip');
-ItemIDToURLMap.set('IDENT_TEMPLATES:3', './downloads/IDENT TEMPLATES/TEMPLATE 3.zip');
+dotenv.config();
 
-ItemIDToURLMap.set('3D_MODELS:*', './downloads/3D MODELS/3D MODELS.zip');
-ItemIDToURLMap.set('3D_MODELS:IMAC_SETUP', './downloads/3D MODELS/IMAC SETUP + KEYBOARD & TRACKPAD.zip');
-ItemIDToURLMap.set('3D_MODELS:MAC_PRO', './downloads/3D MODELS/MAC PRO MODEL.zip');
-ItemIDToURLMap.set('3D_MODELS:MACBOOK', './downloads/3D MODELS/MACBOOK MODEL.zip');
-ItemIDToURLMap.set('3D_MODELS:IPHONE', './downloads/3D MODELS/IPHONE MODEL.zip');
-
-ItemIDToURLMap.set('LOWERTHIRDS:*', './downloads/LOWERTHIRDS/LOWERTHIRDS.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:DISCORD', './downloads/LOWERTHIRDS/DISCORD LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:INSTAGRAM', './downloads/LOWERTHIRDS/INSTAGRAM LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:LIKE', './downloads/LOWERTHIRDS/LIKE THE VIDEO LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:PATREON', './downloads/LOWERTHIRDS/PATREON LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:REDDIT', './downloads/LOWERTHIRDS/REDDIT LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:SPOTIFY', './downloads/LOWERTHIRDS/SPOTIFY LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:TIKTOK', './downloads/LOWERTHIRDS/TIKTOK LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:TWITCH', './downloads/LOWERTHIRDS/TWITCH LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:TWITTER', './downloads/LOWERTHIRDS/TWITTER LOWERTHIRD.zip');
-ItemIDToURLMap.set('LOWERTHIRDS:YOUTUBE', './downloads/LOWERTHIRDS/YOUTUBE LOWERTHIRD.zip');
-
-ItemIDToURLMap.set('TRIM_PATH:*', './downloads/TRIM PATH/TRIM PATH.zip');
-ItemIDToURLMap.set('TRIM_PATH:PROVICALI', './downloads/TRIM PATH/PROVICALI.zip');
-ItemIDToURLMap.set('TRIM_PATH:GOTHAM', './downloads/TRIM PATH/GOTHAM.zip');
-
-ItemIDToURLMap.set('PSALM_PF:_', './downloads/PSALM PF.zip');
-
-ItemIDToURLMap.set('SEBY_COMMISSION:_', './downloads/SEBY COMMISSION.zip');
-
-ItemIDToURLMap.set('XEN_COMMISSION:_', './downloads/XEN COMMISSION.zip');
+const productsDb = new JSONdb('./db/products.json', { asyncWrite: true });
+const ordersDb = new JSONdb('./db/orders.json', { asyncWrite: true });
+const paymentIdToTransactionsMap = new Map();
+const paymentIdToItemIdsMap = new Map();
+let auth;
 
 app.use(express.static('public'));
+app.use(morgan('tiny'));
 app.use(express.json());
 app.use(express.urlencoded({
-    extended: true,
+	extended: true,
 }));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
+	res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.post('/api/v1/payment/new', async (req, res) => {
+	const json = req.body;
+
+	if (json === null
+		|| typeof json !== 'object'
+		|| !Array.isArray(json.items)
+		|| json.items.length < 1) {
+		res.status(400).send('""');
+
+		return;
+	}
+
+	const total = json.items.reduce((prev, curr) => prev + productsDb.get(curr).price, 0);
+	const purchase_units = [{
+		reference_id: `${Date.now()}:${Math.floor(Math.random() * 1000)}`,
+		amount: {
+			value: total,
+			currency_code: 'USD',
+			description: 'Purchase from Fabi',
+		},
+	}];
+
+	try {
+		const response = await fetch(PAYPAL_ORDER_API, {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${auth.access_token}`,
+			},
+			body: JSON.stringify({
+				intent: 'CAPTURE',
+				purchase_units,
+			}),
+		});
+		const result = await response.json();
+
+		if (result.message) {
+			console.error(result);
+			throw new Error();
+		}
+
+		console.log(result);
+
+		if (!response.ok
+			|| !result.id) {
+			console.error(response.status);
+			throw new Error('New payment creation result not OK');
+		}
+
+		paymentIdToTransactionsMap.set(result.id, purchase_units);
+		paymentIdToItemIdsMap.set(result.id, json.items);
+		// force delete order after 30 minutes of non-completion
+		setTimeout(() => {
+			paymentIdToTransactionsMap.delete(result.id);
+			paymentIdToItemIdsMap.delete(result.id);
+		}, 30 * 60 * 1000);
+
+		res.json({
+			payment: result.id,
+		});
+
+		console.log(`Created new payment("${result.id}")`);
+	} catch (err) {
+		console.error(err);
+
+		res.status(500).send('""');
+	}
+});
+
+app.post('/api/v1/payment/execute', async (req, res) => {
+	const json = req.body;
+
+	if (json === null
+		|| typeof json !== 'object'
+		|| typeof json.payment !== 'string') {
+		res.status(400).send('""');
+
+		return;
+	}
+
+	const purchase_units = paymentIdToTransactionsMap.get(json.payment);
+	const itemIds = paymentIdToItemIdsMap.get(json.payment);
+
+	if (purchase_units == null
+		|| itemIds == null) {
+		res.status(400).send('""');
+
+		return;
+	}
+
+	try {
+		const response = await fetch(`${PAYPAL_ORDER_API}${json.payment}/capture`, {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${auth.access_token}`,
+			},
+			/* eslint-disable camelcase */
+			body: JSON.stringify({
+				purchase_units,
+			}),
+			/* eslint-enable camelcase */
+		});
+		const result = await response.json();
+
+		if (result.message) {
+			console.error(result);
+			throw new Error();
+		}
+
+		if (!response.ok
+			|| !result.id) {
+			console.error(response.status);
+			throw new Error(`Payment("${json.payment}") execution result not OK`);
+		}
+
+		const capture = result.purchase_units[0].payments.captures[0].id;
+
+		ordersDb.set(capture, itemIds);
+		paymentIdToTransactionsMap.delete(json.payment);
+		paymentIdToItemIdsMap.delete(json.payment);
+
+		res.json({
+			capture,
+		});
+
+		console.log(`Executed payment("${json.payment}")`);
+	} catch (err) {
+		console.error(err);
+
+		res.status(500).send('""');
+	}
 });
 
 app.get('/api/v1/download', (req, res) => {
-    const { i: itemId, o: orderId } = req.query;
+	const { item, payment } = req.query;
 
-    if (!itemId || !orderId) {
-        res.sendStatus(400);
+	if (!item
+		|| !payment) {
+		res.status(400).send('""');
 
-        return;
-    }
+		return;
+	}
 
-    // todo: verify paypal orderId
+	const orderedItemIds = ordersDb.get(decodeURIComponent(payment));
 
-    const url = ItemIDToURLMap.get(decodeURIComponent(itemId));
+	if (orderedItemIds == null
+		|| !Array.isArray(orderedItemIds)
+		|| !orderedItemIds.includes(decodeURIComponent(item))) {
+		res.status(403).send('""');
 
-    if (url != null) {
-        console.log(`Serving "${orderId}": "${itemId}" ("${url}")`);
-        res.download(url);
-    } else {
-        res.sendStatus(404);
-    }
+		return;
+	}
+
+	const uri = path.resolve('./raw/downloads', productsDb.get(decodeURIComponent(item)).uri);
+
+	if (uri == null) {
+		res.status(404).send('""');
+		return;
+	}
+
+	console.log(`Serving "${payment}": "${item}" ("${uri}")`);
+	res.download(uri);
 });
 
 app.post('/api/v1/email/contact', async (req, res) => {
-    console.log(req.body);
-    var message = `
-<strong>Name: </strong>${req.body.name}<br>
+	const message = `<strong>Name: </strong>${req.body.name}<br>
 <strong>Email: </strong>${req.body.email}<br>
 <strong>Message: </strong>${req.body.message}<br>
 <strong>Budget: </strong>${req.body.info}<br>
-<strong>Currency: </strong>${req.body.currency}<br>`
+<strong>Currency: </strong>${req.body.currency}<br>`;
 
-    try {
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            auth: {
-                user: 'keyan.contact.1211@gmail.com',
-                pass: 'IamKARTHI12!'
-            }
-        });
-        await transporter.sendMail({
-            from: 'keyan.contact.1211@gmail.com',
-            to: 'business@fabidesign.net',
-            subject: 'Contact - Response',
-            html: message
-        });
-        return res.send({ "status": "Success" });
-    } catch (error) {
-        console.error(error.message);
-        return res.send({ "status": "Failed" });
-    }
+	try {
+		const transporter = nodemailer.createTransport({
+			host: 'smtp.gmail.com',
+			port: 587,
+			auth: {
+				user: process.env.GMAIL_USER,
+				pass: process.env.GMAIL_PASS,
+			},
+		});
+		await transporter.sendMail({
+			from: process.env.GMAIL_USER,
+			to: 'business@fabidesign.net',
+			subject: 'Contact - Response',
+			html: message,
+		});
+		return res.sendStatus(200);
+	} catch (err) {
+		console.error(err);
+
+		return res.sendStatus(500);
+	}
 });
 
-var options = {
-    key: fs.readFileSync('./key.pem'),
-    cert: fs.readFileSync('./cert.pem'),
-};
+(async () => {
+	auth = await (
+		await fetch(PAYPAL_OAUTH_API, {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/x-www-form-urlencoded',
+				Authorization: `Basic ${btoa(`${process.env.PAYPAL_CLIENT}:${process.env.PAYPAL_SECRET}`)}`,
+			},
+			body: 'grant_type=client_credentials',
+		})
+	).json();
 
-https.createServer(options, app).listen(port, () => {
-    console.log(`Listening at http://localhost:${port} (https://fabidesign.net/)`);
-});
+	https
+		.createServer({
+			key: fs.readFileSync('./key.pem'),
+			cert: fs.readFileSync('./cert.pem'),
+		}, app)
+		.listen(PORT, () => {
+			console.log(`Listening at http://localhost:${PORT} (https://fabidesign.net/)`);
+		});
+})();

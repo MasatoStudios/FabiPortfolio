@@ -222,7 +222,8 @@ export class CartElement extends Element {
 			});
 	}
 
-	onApprove(data) {
+	/** @param {string} payment */
+	onPaid(payment) {
 		this.itemsW.value.forEach(async (/** @type {CartItem} */ item, i) => {
 			if (item.type === 'downloadable') {
 				await new Promise((resolve) => {
@@ -230,7 +231,7 @@ export class CartElement extends Element {
 					setTimeout(resolve, i * 300);
 				});
 
-				const uri = `/api/v1/download?i=${encodeURIComponent(item.id)}&o=${encodeURIComponent(data.orderID)}`;
+				const uri = `/api/v1/download?item=${encodeURIComponent(item.id)}&payment=${encodeURIComponent(payment)}`;
 				const a = document.createElement('a');
 				a.setAttribute('href', uri);
 				a.setAttribute('download', uri);
@@ -276,24 +277,44 @@ export class CartElement extends Element {
 				layout: 'vertical',
 				label: 'paypal',
 			},
+			env: 'sandbox',
 
-			createOrder: (data, actions) => actions.order.create({
-				/* eslint-disable camelcase */
-				purchase_units: [{
-					reference_id: `${Date.now()}:${Math.floor(Math.random() * 1000)}`,
-					description: '',
-					amount: {
-						currency_code: 'USD',
-						value: this.itemsW.reduce((prev, curr) => prev + curr.priceTotal, 0),
+			createOrder: async () => (
+				await (
+					await fetch('/api/v1/payment/new', {
+						method: 'POST',
+						headers: {
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							items: this.itemsW.value.map(
+								(/** @type {CartItem} */ item) => item.id,
+							),
+						}),
+					})
+				).json()
+			).payment,
+
+			onApprove: async (data) => {
+				const response = await fetch('/api/v1/payment/execute', {
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
 					},
-				}],
-				/* eslint-enable camelcase */
-			}),
+					body: JSON.stringify({
+						payment: data.orderID,
+					}),
+				});
+				const result = await response.json();
 
-			onApprove: async (data, actions) => {
-				const details = await actions.order.capture();
+				if (!response.ok) {
+					console.error(result);
+					throw new Error('Payment not OK');
+				}
 
-				this.onApprove(data, details);
+				this.onPaid(result.capture);
 			},
 
 			onError: (err) => {
