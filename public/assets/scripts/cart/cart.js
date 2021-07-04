@@ -116,7 +116,7 @@ export class CartElement extends Element {
 			if (items.length < lastItemsLength) {
 				toast.store.push(ToastItem.from({
 					text: 'Removed from cart.',
-					type: 'success',
+					type: 'error',
 				}));
 			}
 
