@@ -80,10 +80,12 @@ export class CartElement extends Element {
 		/** @type {boolean} 			*/ 	this.isOpen = false;
 		/** @type {Element | null} 		*/ 	this.lastClickSrc = null;
 		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
+		/** @type {CartItemElement[]} 	*/ 	this.cartItemElements = [];
+		/** @type {boolean} 			*/ 	this.isSuppressingToasts = false;
 
 		this.hydrate();
 
-		this.itemsW.subscribeLazy((items) => {
+		this.itemsW.subscribe((items) => {
 			const idToIndexMap = new Map();
 			const lastItemsLength = this.getLocalStorage().length;
 			let isFromExternalSource;
@@ -103,10 +105,30 @@ export class CartElement extends Element {
 				items.splice(i, 1);
 			});
 
-			this.render();
+			// recreate cartItemElements
+			this.cartItemElements.forEach((cartItemElement) => cartItemElement.destroy());
+			this.cartItemElements = items.map((item) => new CartItemElement(null, item, this.state !== 'receipt'));
+			this.cartItemElements.forEach((cartItemElement) => {
+				cartItemElement.render();
 
-			if (isFromExternalSource
-				|| items.length > lastItemsLength) {
+				cartItemElement.itemW.subscribeLazy((item) => {
+					if (item.quantity < 0) {
+						// eslint-disable-next-line max-nested-callbacks
+						this.itemsW.update((items) => items.filter((it) => it !== item));
+					}
+				});
+
+				cartItemElement.on('increment', () => this.setLocalStorage(this.itemsW.value));
+				cartItemElement.on('decrement', () => this.setLocalStorage(this.itemsW.value));
+			});
+
+			if (this.isMounted) {
+				this.render();
+			}
+
+			if (!this.isSuppressingToasts
+				&& (isFromExternalSource
+					|| items.length > lastItemsLength)) {
 				const index = toast.store.push(ToastItem.from({
 					text: 'Added to cart.',
 					type: 'success',
@@ -117,7 +139,8 @@ export class CartElement extends Element {
 				});
 			}
 
-			if (items.length < lastItemsLength) {
+			if (!this.isSuppressingToasts
+				&& items.length < lastItemsLength) {
 				toast.store.push(ToastItem.from({
 					text: 'Removed from cart.',
 					type: 'error',
@@ -135,7 +158,9 @@ export class CartElement extends Element {
 
 		window.addEventListener('focus', () => {
 			this.hydrate();
-			this.render();
+			this.suppressToasts();
+			this.itemsW.trigger();
+			this.unsuppressToasts();
 		});
 
 		window.addEventListener('cart:activate', () => {
@@ -153,6 +178,14 @@ export class CartElement extends Element {
 				this.activate();
 			}
 		});
+	}
+
+	suppressToasts() {
+		this.isSuppressingToasts = true;
+	}
+
+	unsuppressToasts() {
+		this.isSuppressingToasts = false;
 	}
 
 	setLocalStorage(items) {
@@ -386,27 +419,6 @@ export class CartElement extends Element {
 		/** @type {number} 				*/	const totalUnadjusted = items.reduce((prev, curr) => prev + curr.priceTotalUnadjusted, 0);
 		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + curr.priceTotal, 0);
 		/** @type {number} 				*/	const totalAdjustments = total - totalUnadjusted;
-		/** @type {CartItemElement[]}	*/ 	const cartItemElements = items.map((item) => new CartItemElement(null, item, !isReceipt));
-
-		cartItemElements.forEach((cartItemElement) => {
-			cartItemElement.itemW.subscribeLazy((item) => {
-				// unsubscribe all
-				cartItemElements.forEach((cartItemElement) => {
-					cartItemElement.itemW.subscribers.length = 0;
-				});
-
-				if (item.quantity < 0) {
-					this.itemsW.update((items) => items.filter((it) => it !== item));
-				}
-
-				this.render();
-			});
-
-			cartItemElement.render();
-
-			cartItemElement.on('increment', () => this.itemsW.trigger());
-			cartItemElement.on('decrement', () => this.itemsW.trigger());
-		});
 
 		return html`
 			<div class='${classes.overlay}${this.isOpen ? ' active' : ''}'></div>
@@ -445,7 +457,7 @@ export class CartElement extends Element {
 						</div>
 					</div>
 					<div class='items'>
-						${cartItemElements.map((cartItemElement) => cartItemElement.renderTarget)}
+						${this.cartItemElements.map((cartItemElement) => cartItemElement.renderTarget)}
 					</div>
 				</div>
 			<div>
@@ -660,6 +672,14 @@ export class CartItemElement extends Element {
 
 		/** @type {Store} 	*/ 	this.itemW = new Store(item);
 		/** @type {boolean} */ 	this.isEditable = isEditable;
+
+		this.itemW.subscribe(() => {
+			this.render();
+		});
+	}
+
+	onDestroy() {
+		this.itemW.subscribers.length = 0;
 	}
 
 	decrement() {
