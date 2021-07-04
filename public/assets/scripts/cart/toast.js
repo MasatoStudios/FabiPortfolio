@@ -140,11 +140,15 @@ export class ToastItemElement extends Element {
 	activate() {
 		this.isOpen = true;
 		this.render();
+
+		this.dispatch('activate');
 	}
 
 	deactivate() {
 		this.isOpen = false;
 		this.render();
+
+		this.dispatch('deactivate');
 	}
 
 	/** @override */
@@ -177,7 +181,7 @@ export class ToastItemElement extends Element {
 		const { classes } = this;
 
 		return html`
-			<div class='${classes.toast} ${this.item.type}${this.isOpen ? ' active' : ''}'>
+			<div @click=${() => this.dispatch('click')} class='${classes.toast} ${this.item.type}${this.isOpen ? ' active' : ''}'>
 				<i class='fa ${this.getIconClass(this.item.type)} fa-sm'></i>
 				<p>${this.item.text}</p>
 				<a @click=${() => this.dismiss()} href='#'>
@@ -210,6 +214,7 @@ export class ToastItemElement extends Element {
 				'&.active': {
 					opacity: 1,
 					pointerEvents: 'auto',
+					cursor: 'pointer',
 					transform: 'translateY(0)',
 					transition: `transform .5s ${Vars.EASE_FAST_SLOW}, opacity .2s ${Vars.EASE_SLOW_SLOW}`,
 				},
