@@ -118,6 +118,10 @@ export class ToastItemElement extends Element {
 
 		/** @type {ToastItem}	*/	this.item = item;
 		/** @type {boolean} 	*/ 	this.isOpen = false;
+
+		this.onDefault('click', () => {
+			this.dismiss();
+		});
 	}
 
 	/**
