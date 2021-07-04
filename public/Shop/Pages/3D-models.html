@@ -149,6 +149,7 @@
                                                     src="/Shop/Pages/previews/3d-models/preview.png"
                                                     alt="placeholder"></div>
                                             <div class="swiper-slide"><img
+                                                id="thumbnail-mac-pro"
                                                 src="/Shop/Pages/previews/3d-models/mac-pro-preview.png"
                                                 alt="placeholder"></div>
                                             
@@ -206,7 +207,7 @@
                                     <button
                                         type="button"
                                         data-cart-add-id:="`3D_MODELS:${$('#variant option:checked').dataset.cartEvalVariantId}`"
-                                        data-cart-add-thumbnail-src:="$('#thumbnail').src"
+                                        data-cart-add-thumbnail-src:="$('#variant option:checked').dataset.cartEvalVariantId === 'MAC_PRO' ? $('#thumbnail-mac-pro').src : $('#thumbnail').src"
                                         data-cart-add-name:="$('#title').innerText.trim().replace(/ *\.$/, '')"
                                         data-cart-add-quantity:="$('#quantity').value"
                                         data-cart-add-price-per-item:="Number($('#variant').value)"
