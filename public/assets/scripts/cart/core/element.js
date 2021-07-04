@@ -5,7 +5,7 @@ import { WalkUtility } from '../resources/utilities/walk.utility.js';
 
 export class Element {
 	/**
-	 * @typedef {{detail: *}} ElementEventData
+	 * @typedef {{detail: *, stopPropogation: () => void, preventDefault: () => void}} ElementEventData
 	 * @typedef {(event: ElementEventData) => void} ElementEventCallback
 	 */
 
@@ -26,6 +26,21 @@ export class Element {
 			.attach();
 
 		this.classes = classes;
+	}
+
+	/**
+	 * @param {string} eventString
+	 * @param {ElementEventCallback} callback
+	 */
+	onDefault(eventString, callback) {
+		let callbacks = this.eventStringToCallbacksMap.get(eventString);
+
+		if (callbacks == null) {
+			callbacks = [];
+			this.eventStringToCallbacksMap.set(eventString, callbacks);
+		}
+
+		callbacks[-1] = callback;
 	}
 
 	/**
@@ -86,9 +101,32 @@ export class Element {
 			return;
 		}
 
-		callbacks.forEach((callback) => {
-			callback({ detail: data.detail });
-		});
+		let isDefaultPrevented = false;
+
+		for (const callback of callbacks) {
+			let isPropogationStopped = false;
+
+			callback({
+				stopPropogation: () => {
+					isPropogationStopped = true;
+				},
+				preventDefault: () => {
+					isDefaultPrevented = true;
+				},
+				detail: data.detail,
+			});
+
+			if (isPropogationStopped) {
+				break;
+			}
+		}
+
+		if (!isDefaultPrevented
+			&& typeof callbacks[-1] === 'function') {
+			callbacks[-1]({
+				detail: data.detail,
+			});
+		}
 	}
 
 	onAttach() {}
