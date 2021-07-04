@@ -3,6 +3,8 @@ import jss from 'https://unpkg.com/jss@10.7.1/dist/jss.bundle.js';
 import jssPresetDefault from 'https://unpkg.com/jss-preset-default@10.7.1/dist/jss-preset-default.bundle.js';
 import { WalkUtility } from '../resources/utilities/walk.utility.js';
 
+jss.setup(jssPresetDefault());
+
 export class Element {
 	/**
 	 * @typedef {{detail: *, stopPropogation: () => void, preventDefault: () => void}} ElementEventData
@@ -14,16 +16,14 @@ export class Element {
 		/** @type {HTMLElement} 							*/ 	this.renderTarget = renderTarget;
 		/** @type {boolean} 								*/ 	this.isMounted = false;
 		/** @type {Map<string, ElementEventCallback[]>} 	*/ 	this.eventStringToCallbacksMap = new Map();
+		/** @type {*}									 	*/ 	this.stylesheetInstance = jss.createStyleSheet(this.stylesheet);
 
 		if (!(renderTarget instanceof HTMLElement)) {
 			this.renderTarget = document.createElement('div');
 			this.renderTarget.style.display = 'contents';
 		}
 
-		const { classes } = jss
-			.setup(jssPresetDefault())
-			.createStyleSheet(this.stylesheet)
-			.attach();
+		const { classes } = this.stylesheetInstance.attach();
 
 		this.classes = classes;
 	}
@@ -167,6 +167,8 @@ export class Element {
 			null,
 			this.renderTarget,
 		);
+
+		jss.removeStyleSheet(this.stylesheetInstance);
 
 		this.dispatch('destroy');
 		this.onDestroy();
