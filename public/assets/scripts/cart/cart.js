@@ -107,10 +107,14 @@ export class CartElement extends Element {
 
 			if (isFromExternalSource
 				|| items.length > lastItemsLength) {
-				toast.store.push(ToastItem.from({
+				const index = toast.store.push(ToastItem.from({
 					text: 'Added to cart.',
 					type: 'success',
-				}));
+				})) - 1;
+
+				toast.toastItemElements[index].once('click', () => {
+					this.activate();
+				});
 			}
 
 			if (items.length < lastItemsLength) {
