@@ -133,6 +133,22 @@ export class CartElement extends Element {
 			this.hydrate();
 			this.render();
 		});
+
+		window.addEventListener('cart:activate', () => {
+			this.activate();
+		});
+
+		window.addEventListener('cart:deactivate', () => {
+			this.deactivate();
+		});
+
+		window.addEventListener('cart:toggle', () => {
+			if (this.isOpen) {
+				this.deactivate();
+			} else {
+				this.activate();
+			}
+		});
 	}
 
 	setLocalStorage(items) {
