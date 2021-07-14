@@ -82,6 +82,7 @@ export class CartElement extends Element {
 		/** @type {'cart' | 'receipt'} 	*/ 	this.state = 'cart';
 		/** @type {CartItemElement[]} 	*/ 	this.cartItemElements = [];
 		/** @type {boolean} 			*/ 	this.isSuppressingToasts = false;
+		/** @type {CartSummaryElement} 	*/ 	this.summary = new CartSummaryElement(null, this);
 
 		this.hydrate();
 
@@ -118,8 +119,8 @@ export class CartElement extends Element {
 					}
 				});
 
-				cartItemElement.on('increment', () => this.setLocalStorage(this.itemsW.value));
-				cartItemElement.on('decrement', () => this.setLocalStorage(this.itemsW.value));
+				cartItemElement.on('increment', () => this.onItemChange());
+				cartItemElement.on('decrement', () => this.onItemChange());
 			});
 
 			if (this.isMounted) {
@@ -224,6 +225,11 @@ export class CartElement extends Element {
 	deactivate() {
 		this.isOpen = false;
 		this.onDeactivate(this.lastClickSrc);
+	}
+
+	onItemChange() {
+		this.setLocalStorage(this.itemsW.value);
+		this.summary.render();
 	}
 
 	/** @override */
@@ -416,9 +422,8 @@ export class CartElement extends Element {
 		const { value: items } = itemsW;
 
 		/** @type {boolean} 			*/	const isReceipt = this.state === 'receipt';
-		/** @type {number} 				*/	const totalUnadjusted = items.reduce((prev, curr) => prev + curr.priceTotalUnadjusted, 0);
-		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + curr.priceTotal, 0);
-		/** @type {number} 				*/	const totalAdjustments = total - totalUnadjusted;
+
+		this.summary.render();
 
 		return html`
 			<div class='${classes.overlay}${this.isOpen ? ' active' : ''}'></div>
@@ -438,24 +443,7 @@ export class CartElement extends Element {
 						<h3>${items.length} item${items.length !== 1 && 's'}${isReceipt && ' Purchased'}.</h3>
 						${isReceipt && items.some((item) => item.type === 'downloadable') && html`<p>Downloads should start at any moment.</p>`}
 					</div>
-					<div class='summary'>
-						<div class='wrapper'>
-							<div class='data'>
-								<p>Total: </p>
-								<h6>$${totalUnadjusted.toFixed(2)}${Boolean(totalAdjustments) && ` (${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))})`}</h6>
-								${Boolean(totalAdjustments) && html`
-									<br>
-									<p>Adjusted Total: </p>
-									<h6>$${total.toFixed(2)}</h6>
-								`}
-							</div>
-							<div style='height: 48px'></div>
-							${html`<div class='${classes.paypal}${!isReceipt && total > 0 && ' active'}'></div>`}
-							<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
-								Continue Shopping
-							</a>
-						</div>
-					</div>
+					${this.summary.renderTarget}
 					<div class='items'>
 						${this.cartItemElements.map((cartItemElement) => cartItemElement.renderTarget)}
 					</div>
@@ -550,54 +538,6 @@ export class CartElement extends Element {
 							lineHeight: '1em',
 						},
 					},
-					'& > .summary': {
-						position: 'sticky',
-						marginTop: Vars.PADDING,
-						top: 0,
-						height: 0,
-						float: 'right',
-						'& > .wrapper': {
-							background: '#fffa',
-							backdropFilter: 'invert(1)',
-							width: 'calc(16.6666667vw - 5px)',
-							minWidth: 240,
-							padding: Vars.PADDING,
-							'& > .data': {
-								'& > p': {
-									margin: 0,
-								},
-								'& > p, & > h6': {
-									color: 'black',
-								},
-							},
-							'& > .vlt-btn': {
-								zIndex: 'unset',
-								width: '100%',
-								height: 45,
-							},
-							'& > .continue': {
-								background: 'transparent',
-								color: 'black',
-								boxShadow: 'inset 0 0 0 1px black',
-							},
-							'& > .continue:hover, & > .continue:active': {
-								background: 'black',
-								color: 'white',
-							},
-							'& > .continue:active': {
-								background: 'transparent',
-								color: 'transparent',
-							},
-							'@media (max-width: 1480px)': {
-								height: 'auto',
-								width: '100%',
-							},
-						},
-						'@media (max-width: 1480px)': {
-							float: 'unset',
-							height: 'auto',
-						},
-					},
 					'& > .items': {
 						boxSizing: 'border-box',
 						padding: Vars.PADDING,
@@ -655,6 +595,103 @@ export class CartElement extends Element {
 				display: 'none',
 				'&.active': {
 					display: 'unset',
+				},
+			},
+		};
+	}
+}
+
+export class CartSummaryElement extends Element {
+	/**
+	 * @param {CartElement} cart
+	 * @param {Element | null} renderTarget
+	 * */
+	constructor(renderTarget, cart) {
+		super(renderTarget || null);
+
+		/** @type {CartElement} 	*/ 	this.cart = cart;
+	}
+
+	/** @override */
+	get template() {
+		const { classes } = this;
+		const { value: items } = this.cart.itemsW;
+
+		/** @type {boolean} 			*/	const isReceipt = this.state === 'receipt';
+		/** @type {number} 				*/	const totalUnadjusted = items.reduce((prev, curr) => prev + curr.priceTotalUnadjusted, 0);
+		/** @type {number} 				*/	const total = items.reduce((prev, curr) => prev + curr.priceTotal, 0);
+		/** @type {number} 				*/	const totalAdjustments = total - totalUnadjusted;
+		return html`
+			<div class='${classes.summary}'>
+				<div class='wrapper'>
+					<div class='data'>
+						<p>Total: </p>
+						<h6>$${totalUnadjusted.toFixed(2)}${Boolean(totalAdjustments) && ` (${totalAdjustments < 0 && '-'}$${Math.abs(totalAdjustments.toFixed(2))})`}</h6>
+						${Boolean(totalAdjustments) && html`
+							<br>
+							<p>Adjusted Total: </p>
+							<h6>$${total.toFixed(2)}</h6>
+						`}
+					</div>
+					<div style='height: 48px'></div>
+					${html`<div class='${this.cart.classes.paypal}${!isReceipt && total > 0 && ' active'}'></div>`}
+					<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
+						Continue Shopping
+					</a>
+				</div>
+			</div>
+		`;
+	}
+
+	/** @override */
+	get stylesheet() {
+		return {
+			summary: {
+				position: 'sticky',
+				marginTop: Vars.PADDING,
+				top: 0,
+				height: 0,
+				float: 'right',
+				'& > .wrapper': {
+					background: '#fffa',
+					backdropFilter: 'invert(1)',
+					width: 'calc(16.6666667vw - 5px)',
+					minWidth: 240,
+					padding: Vars.PADDING,
+					'& > .data': {
+						'& > p': {
+							margin: 0,
+						},
+						'& > p, & > h6': {
+							color: 'black',
+						},
+					},
+					'& > .vlt-btn': {
+						zIndex: 'unset',
+						width: '100%',
+						height: 45,
+					},
+					'& > .continue': {
+						background: 'transparent',
+						color: 'black',
+						boxShadow: 'inset 0 0 0 1px black',
+					},
+					'& > .continue:hover, & > .continue:active': {
+						background: 'black',
+						color: 'white',
+					},
+					'& > .continue:active': {
+						background: 'transparent',
+						color: 'transparent',
+					},
+					'@media (max-width: 1480px)': {
+						height: 'auto',
+						width: '100%',
+					},
+				},
+				'@media (max-width: 1480px)': {
+					float: 'unset',
+					height: 'auto',
 				},
 			},
 		};
