@@ -22,6 +22,7 @@ const ordersDb = new JSONdb('./db/orders.v1.json', { asyncWrite: true });
 const paymentIdToTransactionsMap = new Map();
 const paymentIdToItemIdsMap = new Map();
 let auth;
+let authRequestTime = 0;
 
 app.use(express.static('public'));
 app.use(morgan('tiny'));
@@ -46,7 +47,26 @@ app.post('/api/v1/payment/new', async (req, res) => {
 		return;
 	}
 
-	const total = json.items.reduce((prev, curr) => prev + (productsDb.get(curr.id).price * curr.quantity), 0);
+	let total;
+
+	try {
+		total = json.items.reduce((prev, curr) => prev + (productsDb.get(curr.id).price * curr.quantity), 0);
+
+		if (!total) {
+			throw new Error();
+		}
+	} catch (_) {
+		// curr.id is undefined
+		// 		or
+		// db produced an error
+		// 		or
+		// total is falsish
+
+		res.status(400).send('""');
+
+		return;
+	}
+
 	const purchase_units = [{
 		reference_id: `${Date.now()}:${Math.floor(Math.random() * 1000)}`,
 		amount: {
@@ -62,7 +82,7 @@ app.post('/api/v1/payment/new', async (req, res) => {
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${auth.access_token}`,
+				Authorization: `Bearer ${await getAccessToken()}`,
 			},
 			body: JSON.stringify({
 				intent: 'CAPTURE',
@@ -129,7 +149,7 @@ app.post('/api/v1/payment/execute', async (req, res) => {
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${auth.access_token}`,
+				Authorization: `Bearer ${await getAccessToken()}`,
 			},
 			/* eslint-disable camelcase */
 			body: JSON.stringify({
@@ -229,7 +249,26 @@ app.post('/api/v1/email/contact', async (req, res) => {
 	}
 });
 
-(async () => {
+async function getAccessToken() {
+	if (isAuthExpired()) {
+		console.warn('Refreshing access token on access. This is a failsafe & should not be happening');
+		await refreshAuth();
+	}
+
+	return auth.access_token;
+}
+
+function isAuthExpired() {
+	if (auth != null
+		// if is not expired or less than 30 secs away from expiring
+		&& ((auth.expires_in ?? 0) * 1000) + authRequestTime > Date.now() - 3000) {
+		return false;
+	}
+
+	return true;
+}
+
+async function refreshAuth() {
 	auth = await (
 		await fetch(PAYPAL_OAUTH_API, {
 			method: 'POST',
@@ -241,6 +280,19 @@ app.post('/api/v1/email/contact', async (req, res) => {
 			body: 'grant_type=client_credentials',
 		})
 	).json();
+	authRequestTime = Date.now();
+}
+
+async function scheduleAuthRefresh() {
+	if (isAuthExpired()) {
+		await refreshAuth();
+	}
+
+	setInterval(refreshAuth, (auth.expires_in - 30) * 1000);
+}
+
+(async () => {
+	scheduleAuthRefresh();
 
 	https
 		.createServer({
