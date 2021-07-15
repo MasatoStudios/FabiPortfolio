@@ -15,6 +15,8 @@ const PORT = 443;
 const PAYPAL_OAUTH_API = 'https://api-m.paypal.com/v1/oauth2/token/';
 const PAYPAL_ORDER_API = 'https://api-m.paypal.com/v2/checkout/orders/';
 
+/** @typedef {{id: string, quantity: number}} ItemRequest */
+
 dotenv.config();
 
 const productsDb = new JSONdb('./db/products.v1.json', { asyncWrite: true });
@@ -36,6 +38,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/v1/payment/new', async (req, res) => {
+	/** @type {ItemRequest[]} */
 	const json = req.body;
 
 	if (json === null
@@ -198,11 +201,12 @@ app.get('/api/v1/download', (req, res) => {
 		return;
 	}
 
-	const orderedItemIds = ordersDb.get(decodeURIComponent(payment));
+	/** @type {ItemRequest[]} */
+	const orderedItems = ordersDb.get(decodeURIComponent(payment));
 
-	if (orderedItemIds == null
-		|| !Array.isArray(orderedItemIds)
-		|| !orderedItemIds.includes(decodeURIComponent(item))) {
+	if (orderedItems == null
+		|| !Array.isArray(orderedItems)
+		|| !orderedItems.some(({ id }) => id === decodeURIComponent(item))) {
 		res.status(403).send('""');
 
 		return;
