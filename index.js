@@ -6,12 +6,12 @@ const express = require('express');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const http = require('http');
 const https = require('https');
 const fetch = require('node-fetch');
 const morgan = require('morgan');
 const app = express();
 
-const PORT = 443;
 const PAYPAL_OAUTH_API = 'https://api-m.paypal.com/v1/oauth2/token/';
 const PAYPAL_ORDER_API = 'https://api-m.paypal.com/v2/checkout/orders/';
 
@@ -298,12 +298,23 @@ async function scheduleAuthRefresh() {
 (async () => {
 	scheduleAuthRefresh();
 
+	http
+		.createServer((req, res) => {
+			res.writeHead(308, {
+				Location: `https://${req.headers.host}${req.url}`,
+			});
+			res.end();
+		})
+		.listen(80, () => {
+			console.log('HTTPS forwarder server listening on port 80');
+		});
+
 	https
 		.createServer({
 			key: fs.readFileSync('./key.pem'),
 			cert: fs.readFileSync('./cert.pem'),
 		}, app)
-		.listen(PORT, () => {
-			console.log(`Listening at http://localhost:${PORT} (https://fabidesign.net/)`);
+		.listen(443, () => {
+			console.log('Main server listening on port 443');
 		});
 })();
