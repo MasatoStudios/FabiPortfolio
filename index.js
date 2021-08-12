@@ -45,7 +45,7 @@ app.post('/api/v1/payment/new', async (req, res) => {
 		|| typeof json !== 'object'
 		|| !Array.isArray(json.items)
 		|| json.items.length < 1) {
-		res.status(400).send('""');
+		res.status(400).send('{}');
 
 		return;
 	}
@@ -65,7 +65,7 @@ app.post('/api/v1/payment/new', async (req, res) => {
 		// 		or
 		// total is falsish
 
-		res.status(400).send('""');
+		res.status(400).send('{}');
 
 		return;
 	}
@@ -121,7 +121,7 @@ app.post('/api/v1/payment/new', async (req, res) => {
 	} catch (err) {
 		console.error(err);
 
-		res.status(500).send('""');
+		res.status(500).send('{}');
 	}
 });
 
@@ -131,7 +131,7 @@ app.post('/api/v1/payment/execute', async (req, res) => {
 	if (json === null
 		|| typeof json !== 'object'
 		|| typeof json.payment !== 'string') {
-		res.status(400).send('""');
+		res.status(400).send('{}');
 
 		return;
 	}
@@ -141,7 +141,7 @@ app.post('/api/v1/payment/execute', async (req, res) => {
 
 	if (purchase_units == null
 		|| itemIds == null) {
-		res.status(400).send('""');
+		res.status(400).send('{}');
 
 		return;
 	}
@@ -187,7 +187,7 @@ app.post('/api/v1/payment/execute', async (req, res) => {
 	} catch (err) {
 		console.error(err);
 
-		res.status(500).send('""');
+		res.status(500).send('{}');
 	}
 });
 
@@ -196,7 +196,7 @@ app.get('/api/v1/download', (req, res) => {
 
 	if (!item
 		|| !payment) {
-		res.status(400).send('""');
+		res.status(400).send('{}');
 
 		return;
 	}
@@ -207,7 +207,7 @@ app.get('/api/v1/download', (req, res) => {
 	if (orderedItems == null
 		|| !Array.isArray(orderedItems)
 		|| !orderedItems.some(({ id }) => id === decodeURIComponent(item))) {
-		res.status(403).send('""');
+		res.status(403).send('{}');
 
 		return;
 	}
@@ -215,12 +215,24 @@ app.get('/api/v1/download', (req, res) => {
 	const uri = path.resolve('./raw/downloads', productsDb.get(decodeURIComponent(item)).uri);
 
 	if (uri == null) {
-		res.status(404).send('""');
+		res.status(404).send('{}');
 		return;
 	}
 
 	console.log(`Serving "${payment}": "${item}" ("${uri}")`);
 	res.download(uri);
+});
+
+app.get('/api/v1/price', (req, res) => {
+	const { item } = req.query;
+	const { price } = productsDb.get(item) ?? {};
+
+	if (price == null) {
+		res.status(400).send('{}');
+		return;
+	}
+
+	res.status(200).send({ price });
 });
 
 app.post('/api/v1/email/contact', async (req, res) => {
