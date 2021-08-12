@@ -225,14 +225,14 @@ app.get('/api/v1/download', (req, res) => {
 
 app.get('/api/v1/price', (req, res) => {
 	const { item } = req.query;
-	const { price } = productsDb.get(item) ?? {};
+	const { price, discountPercent } = productsDb.get(item) ?? {};
 
 	if (price == null) {
 		res.status(400).send('{}');
 		return;
 	}
 
-	res.status(200).send({ price });
+	res.status(200).send({ price, discountPercent });
 });
 
 app.post('/api/v1/email/contact', async (req, res) => {
