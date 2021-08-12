@@ -101,6 +101,36 @@ export class CartElement extends Element {
 					return;
 				}
 
+				// detect when prices have changed
+				// then prompt the user to remove the outdated products from their cart
+				if (items[index].id === item.id
+					&& (items[index].pricePerItem !== item.pricePerItem
+						|| items[index].discountPercent !== item.discountPercent)) {
+					const toastRemoveIndex = toast.store.push(ToastItem.from({
+						text: 'The price has changed. Click me to remove old item from cart.',
+						type: 'error',
+					})) - 1;
+
+					toast.toastItemElements[toastRemoveIndex].once('click', () => {
+						this.suppressToasts();
+						this.itemsW.splice(items.findIndex((it) => it.id === item.id), 1);
+						this.unsuppressToasts();
+
+						const toastRemovedIndex = toast.store.push(ToastItem.from({
+							text: 'Old item removed from cart.',
+							type: 'success',
+						})) - 1;
+
+						toast.toastItemElements[toastRemovedIndex].once('click', () => {
+							cart.activate();
+						});
+					});
+
+					items.splice(i, 1);
+
+					return;
+				}
+
 				isFromExternalSource = item.source === 'external';
 				items[index].quantity += item.quantity;
 				items.splice(i, 1);
@@ -405,6 +435,8 @@ export class CartElement extends Element {
 			srcElem.style.opacity = 0;
 		}
 
+		void this.removeOutdatedPriceItems();
+
 		this.render();
 	}
 
@@ -415,6 +447,28 @@ export class CartElement extends Element {
 		}
 
 		this.render();
+	}
+
+	async removeOutdatedPriceItems() {
+		const itemsWPrePriceCheckLength = this.itemsW.length;
+
+		await Promise.allSettled(this.itemsW.map(async (item, i) => {
+			const { price, discountPercent } = (await (await fetch(`/api/v1/price?item=${encodeURIComponent(item.id)}`)).json());
+
+			if (price !== item.pricePerItem
+				|| discountPercent !== item.discountPercent) {
+				this.suppressToasts();
+				this.itemsW.splice(i, 1);
+				this.unsuppressToasts();
+			}
+		}));
+
+		if (itemsWPrePriceCheckLength !== this.itemsW.length) {
+			toast.store.push(ToastItem.from({
+				text: 'Some items were removed from your cart due to price changes.',
+				type: 'info',
+			}));
+		}
 	}
 
 	get store() {
