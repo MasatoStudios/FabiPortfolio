@@ -255,14 +255,19 @@ export class CartElement extends Element {
 		Array
 			.from(document.getElementsByClassName('js-cart-add'))
 			.forEach((elem) => {
-				elem.addEventListener('click', (event) => {
+				elem.addEventListener('click', async (event) => {
 					event.preventDefault();
 
 					const cartItemOptions = {
 						source: 'external',
 					};
+					const cartItem = new CartItem();
 
-					Object.keys(new CartItem()).forEach((key) => {
+					for (const key in cartItem) {
+						if (!Object.prototype.hasOwnProperty.call(cartItem, key)) {
+							continue;
+						}
+
 						let isExpression = false;
 						const datasetKey = `cartAdd${key[0].toUpperCase() + key.substr(1)}`;
 
@@ -273,14 +278,14 @@ export class CartElement extends Element {
 						const data = elem.dataset[`${datasetKey}${isExpression ? ':' : ''}`];
 
 						if (data) {
+							const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
 							const result = isExpression
-								// eslint-disable-next-line no-new-func
-								? new Function('$', `return ${data}`)(document.querySelector.bind(document))
+								? await new AsyncFunction('$', 'ctx', `return ${data}`)(document.querySelector.bind(document), cartItemOptions)
 								: data;
 
 							cartItemOptions[key] = result;
 						}
-					});
+					}
 
 					cart.store.push(CartItem.from(cartItemOptions));
 				});
