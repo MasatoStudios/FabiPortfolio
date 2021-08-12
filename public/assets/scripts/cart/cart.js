@@ -640,7 +640,7 @@ export class CartSummaryElement extends Element {
 					</div>
 					<div style='height: 48px'></div>
 					${html`<div class='${this.cart.classes.paypal}${!isReceipt && total > 0 && ' active'}'></div>`}
-					<a @click=${() => this.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
+					<a @click=${() => this.cart.deactivate()} class='continue vlt-btn vlt-btn--primary vlt-btn--md' href='#'>
 						Continue Shopping
 					</a>
 				</div>
