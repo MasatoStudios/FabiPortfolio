@@ -158,7 +158,9 @@ export class ToastItemElement extends Element {
 	/** @override */
 	onMount() {
 		requestAnimationFrame(() => {
-			this.activate();
+			requestAnimationFrame(() => {
+				this.activate();
+			});
 		});
 
 		if (this.item.time >= 0) {
@@ -188,9 +190,9 @@ export class ToastItemElement extends Element {
 		const clickCallbacksLength = typeof clickCallbacks === 'object' ? Number(clickCallbacks.length) : 0;
 
 		return html`
-			<div @click=${() => this.dispatch('click')} class='${classes.toast} ${this.item.type}${this.isOpen ? ' active' : ''}'>
+			<div class='${classes.toast} ${this.item.type}${this.isOpen ? ' active' : ''}'>
 				<i class='fa ${this.getIconClass(this.item.type)} fa-sm'></i>
-				${clickCallbacksLength > 0 ? html`<a class='clickable' href='#' onclick='false'>${this.item.text}</a>` : html`<p>${this.item.text}</p>`}
+				${clickCallbacksLength > 0 ? html`<a class='clickable' href='#' onclick='false' @click=${() => this.dispatch('click')} >${this.item.text}</a>` : html`<p>${this.item.text}</p>`}
 				<a class='dismiss' @click=${() => this.dismiss()} href='#'>
 					<i class='fa fa-times-circle fa-sm'></i>
 				</a>
