@@ -1,17 +1,17 @@
 {
     "IDENT_TEMPLATES:*": {
         "uri": "IDENT TEMPLATES/IDENT TEMPLATES.zip",
-        "price": 12,
+        "price": 5,
         "discountPercent": 0
     },
     "IDENT_TEMPLATES:1": {
         "uri": "IDENT TEMPLATES/TEMPLATE 1.zip",
-        "price": 5,
+        "price": 2,
         "discountPercent": 0
     },
     "IDENT_TEMPLATES:2": {
         "uri": "IDENT TEMPLATES/TEMPLATE 2.zip",
-        "price": 5,
+        "price": 2,
         "discountPercent": 0
     },
     "IDENT_TEMPLATES:3": {
@@ -21,32 +21,32 @@
     },
     "3D_MODELS:*": {
         "uri": "3D MODELS/3D MODELS.zip",
-        "price": 30,
+        "price": 15,
         "discountPercent": 0
     },
     "3D_MODELS:IMAC_SETUP": {
         "uri": "3D MODELS/IMAC SETUP + KEYBOARD & TRACKPAD.zip",
-        "price": 10,
+        "price": 5,
         "discountPercent": 0
     },
     "3D_MODELS:MAC_PRO": {
         "uri": "3D MODELS/MAC PRO MODEL.zip",
-        "price": 15,
+        "price": 7.5,
         "discountPercent": 0
     },
     "3D_MODELS:MACBOOK": {
         "uri": "3D MODELS/MACBOOK MODEL.zip",
-        "price": 7.5,
+        "price": 3.5,
         "discountPercent": 0
     },
     "3D_MODELS:IPHONE": {
         "uri": "3D MODELS/IPHONE MODEL.zip",
-        "price": 7.5,
+        "price": 3.5,
         "discountPercent": 0
     },
     "LOWERTHIRDS:*": {
         "uri": "LOWERTHIRDS/LOWERTHIRDS.zip",
-        "price": 25,
+        "price": 20,
         "discountPercent": 0
     },
     "LOWERTHIRDS:DISCORD": {
@@ -101,32 +101,32 @@
     },
     "TRIM_PATH:*": {
         "uri": "TRIM PATH/TRIM PATH.zip",
-        "price": 5,
+        "price": 3,
         "discountPercent": 0
     },
     "TRIM_PATH:PROVICALI": {
         "uri": "TRIM PATH/PROVICALI.zip",
-        "price": 2.5,
+        "price": 2,
         "discountPercent": 0
     },
     "TRIM_PATH:GOTHAM": {
         "uri": "TRIM PATH/GOTHAM.zip",
-        "price": 2.5,
+        "price": 2,
         "discountPercent": 0
     },
     "PSALM_PF:_": {
         "uri": "PSALM PF.zip",
-        "price": 10,
+        "price": 7.5,
         "discountPercent": 0
     },
     "SEBY_COMMISSION:_": {
         "uri": "SEBY COMMISSION.zip",
-        "price": 15,
+        "price": 7.5,
         "discountPercent": 0
     },
     "XEN_COMMISSION:_": {
         "uri": "XEN COMMISSION.zip",
-        "price": 20,
+        "price": 10,
         "discountPercent": 0
     }
 }
