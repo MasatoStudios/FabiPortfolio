@@ -19,5 +19,6 @@ module.exports = {
 		'no-await-in-loop': ['off'],
 		'arrow-parens': ['error', 'always'],
 		'new-cap': ['off'],
+		'no-void': ['off'],
 	},
 };
