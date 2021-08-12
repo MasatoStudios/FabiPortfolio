@@ -207,7 +207,7 @@
                                         data-cart-add-thumbnail-src:="$('#thumbnail').src"
                                         data-cart-add-name:="$('#title').innerText.trim().replace(/ *\.$/, '')"
                                         data-cart-add-quantity:="$('#quantity').value"
-                                        data-cart-add-price-per-item:="Number($('#variant').value)"
+                                        data-cart-add-price-per-item:="(await (await fetch(`/api/v1/price?item=${encodeURIComponent(ctx.id)}`)).json()).price"
                                         data-cart-add-discount-per-item="0"
                                         data-cart-add-variant:="$('#variant option:checked').innerText"
                                         data-cart-add-type="downloadable"
