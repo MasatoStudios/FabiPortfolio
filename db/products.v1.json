@@ -16,7 +16,7 @@
     },
     "IDENT_TEMPLATES:3": {
         "uri": "IDENT TEMPLATES/TEMPLATE 3.zip",
-        "price": 5,
+        "price": 2,
         "discountPercent": 0
     },
     "3D_MODELS:*": {
@@ -36,12 +36,12 @@
     },
     "3D_MODELS:MACBOOK": {
         "uri": "3D MODELS/MACBOOK MODEL.zip",
-        "price": 3.5,
+        "price": 2.5,
         "discountPercent": 0
     },
     "3D_MODELS:IPHONE": {
         "uri": "3D MODELS/IPHONE MODEL.zip",
-        "price": 3.5,
+        "price": 2.5,
         "discountPercent": 0
     },
     "LOWERTHIRDS:*": {
